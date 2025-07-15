@@ -69,6 +69,7 @@ maxpostpernode=30    # <------ qtde max de convert_mpas por no!
 VARTABLE=".OPER"
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 N_MODEL_LEV=55
+NLEV=18
 #-------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
@@ -112,14 +113,6 @@ elif [ $RES -eq 5898242 ]; then  #10Km
    ENDLON=360.0
 fi
 #-------------------------------------------------------
-
-# NLEVS get from t_iso_levels in Registry_isobaric.xml:
-if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
-then
-   NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
-else
-   NLEV=18
-fi
 
 
 files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
@@ -216,7 +209,7 @@ do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${NLEV}.nc
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${N_MODEL_LEV}.nc
    
    cd ${DIRRUN}/dir.\${i}
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
