@@ -26,7 +26,7 @@ module list
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/775-scripts-L18_to_L55/scripts_CD-CT/sources/MONAN-Model_1.4.1-rc
+export MONANDIR=/mnt/beegfs/carlos.souza/issues/800-teste-monan-preoper-142/scripts_CD-CT/sources/MONAN-Model_1.4.2-rc
 
 # Submiting variables:
 

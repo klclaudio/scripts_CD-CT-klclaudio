@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/bash 
 #-----------------------------------------------------------------------------#
 # !SCRIPT: run_post
 #
@@ -121,8 +121,8 @@ fi
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 
-diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${NLEV}.nc
-diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${NLEV}.nc
+diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
+diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${N_MODEL_LEV}.nc
 
 rm -fr ${DIRRUN}/qctlinfo.gs
 cat > ${DIRRUN}/qctlinfo.gs <<EOGS
