@@ -163,19 +163,28 @@ fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
 while [ ${inicio} -le ${nfiles} ]
 do
    rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
-cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash -x
-#SBATCH --job-name=MO.Pos${node}
-#SBATCH --nodes=1
-#SBATCH --partition=${POST_QUEUE}
-#SBATCH --time=${POST_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
-#SBATCH --exclusive
+   
+   if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
+   then
+      sed -e "s/#JOBNAME#/MO.Pos${node}/g;
+      s/#NNODES#/1/g;
+      /#NTASKS#/d;
+      /#NTASKSPNODE#/d;
+      s/#PARTITION#/${POST_QUEUE}/g;
+      s/#WALLTIME#/${POST_walltime}/g;
+      s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
+      s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
+      ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > \
+      ${DIRRUN}/PostAtmos_node.${node}.sh
+   else
+      echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
+   fi
+   
+cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
 . ${DIRRUN}/setenv.bash
 
-echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
+echo "Executing posts ${inicio} to ${fim} in node Node ${node}."
 
 for ii in \$(seq  ${inicio} ${fim})
 do
@@ -220,12 +229,29 @@ done
 wait
  
 EOSH
-
+   
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
    cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
-   echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+
+   case "${SCHEDULER_SYSTEM}" in
+      SLURM)
+         echo "Rodando em SLURM"
+         jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
+         echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+         ;;
+      PBS)
+         echo "Rodando em PBS"
+         # comandos qsub, qstat, etc.
+        ;;
+      NONE)
+         echo "Nenhum gerenciador detectado"
+         ${DIRRUN}/PostAtmos_node.${node}.sh
+         ;;
+   esac
   
+
+
+
    inicio=$((fim + 1))
    temp=$((fim + maxpostpernode))
    fim=$(( temp < nfiles ? temp : nfiles ))
@@ -247,17 +273,28 @@ done
 # Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
-cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash
-#SBATCH --job-name=MO.Pos${node}
-#SBATCH --nodes=1
-#SBATCH --partition=${POST_QUEUE}
-#SBATCH --time=${POST_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
 
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
+then
+   sed -e "s/#JOBNAME#/MO.Pos${node}/g;
+   s/#NNODES#/1/g;
+   /#NTASKS#/d;
+   /#NTASKSPNODE#/d;
+   s/#PARTITION#/${POST_QUEUE}/g;
+   s/#WALLTIME#/${POST_walltime}/g;
+   s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
+   s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
+   ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > \
+   ${DIRRUN}/PostAtmos_node.${node}.sh
+else
+   echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
+fi
+
+
+
+
+cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 . ${DIRRUN}/setenv.bash
-
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
@@ -277,7 +314,21 @@ rm -fr ${DIRRUN}
 
 EOSH
 chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
-sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo "Rodando em SLURM"
+      sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+      ;;
+   PBS)
+      echo "Rodando em PBS"
+      # comandos qsub, qstat, etc.
+     ;;
+   NONE)
+      echo "Nenhum gerenciador detectado"
+      ${DIRRUN}/PostAtmos_node.${node}.sh
+      ;;
+esac
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
