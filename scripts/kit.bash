@@ -13,5 +13,5 @@ nedit \
 ./setenv.bash \
 ./link_grib.csh \
 ./run_past2now.bash \
-./stools/*.bash \
+./stools/*.bash* \
 ./kit.bash &

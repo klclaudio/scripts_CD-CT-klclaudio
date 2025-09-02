@@ -218,14 +218,17 @@ case "${SCHEDULER_SYSTEM}" in
       echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
       echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
       echo -e  "sbatch ${SCRIPTS}/model.bash"
+      cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/model.bash
         ;;
     PBS)
       echo "Rodando em PBS"
+      cd ${DIRRUN}
       # comandos qsub, qstat, etc.
       ;;
     GENERIC)
       echo "Nenhum gerenciador detectado"
+      cd ${DIRRUN}
       ${DIRRUN}/model.bash
       ;;
 esac

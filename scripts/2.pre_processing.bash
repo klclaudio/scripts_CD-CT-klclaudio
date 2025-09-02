@@ -116,7 +116,7 @@ fi
 echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
-
+exit
 
 
 # Init Atmosphere phase:------------------------------------------------------------

@@ -117,7 +117,7 @@ else
    echo "#!/bin/bash " > ${DIRRUN}/static.bash 
 fi
 
-cat << EOF0 > ${DIRRUN}/static.bash 
+cat << EOF0 >> ${DIRRUN}/static.bash 
 export executable=init_atmosphere_model
 
 ulimit -s unlimited
@@ -162,10 +162,12 @@ case "${SCHEDULER_SYSTEM}" in
       ;;
     PBS)
       echo "Rodando em PBS"
+      cd ${DIRRUN}
       # comandos qsub, qstat, etc.
       ;;
     GENERIC)
       echo "Nenhum gerenciador detectado"
+      cd ${DIRRUN}
       ${DIRRUN}/model.bash
       ;;
 esac
