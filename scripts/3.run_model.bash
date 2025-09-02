@@ -221,13 +221,13 @@ case "${SCHEDULER_SYSTEM}" in
       sbatch --wait ${DIRRUN}/model.bash
         ;;
     PBS)
-        echo "Rodando em PBS"
-        # comandos qsub, qstat, etc.
-        ;;
-    NONE)
-        echo "Nenhum gerenciador detectado"
-        ${DIRRUN}/model.bash
-        ;;
+      echo "Rodando em PBS"
+      # comandos qsub, qstat, etc.
+      ;;
+    GENERIC)
+      echo "Nenhum gerenciador detectado"
+      ${DIRRUN}/model.bash
+      ;;
 esac
 mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 

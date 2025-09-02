@@ -243,7 +243,7 @@ EOSH
          echo "Rodando em PBS"
          # comandos qsub, qstat, etc.
         ;;
-      NONE)
+      GENERIC)
          echo "Nenhum gerenciador detectado"
          ${DIRRUN}/PostAtmos_node.${node}.sh
          ;;
@@ -324,7 +324,7 @@ case "${SCHEDULER_SYSTEM}" in
       echo "Rodando em PBS"
       # comandos qsub, qstat, etc.
      ;;
-   NONE)
+   GENERIC)
       echo "Nenhum gerenciador detectado"
       ${DIRRUN}/PostAtmos_node.${node}.sh
       ;;
