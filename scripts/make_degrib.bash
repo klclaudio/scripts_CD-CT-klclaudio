@@ -65,19 +65,27 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
       GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+      ;;
     PBS)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
       echo "Rodando em PBS"
       # BNDDIR=
       ;;
     GENERIC)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
       echo "Nenhum gerenciador detectado"
       # BNDDIR=
       ;;
 esac
 
+#CR: maybe this if should belong to the SLURM kind of running...
 if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
    if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
