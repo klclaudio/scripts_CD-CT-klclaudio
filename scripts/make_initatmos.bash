@@ -120,7 +120,7 @@ fi
 
 
 
-cat << EOF0 > ${DIRRUN}/initatmos.bash 
+cat << EOF0 >> ${DIRRUN}/initatmos.bash 
 export executable=init_atmosphere_model
 
 ulimit -c unlimited
@@ -147,10 +147,26 @@ mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 EOF0
 chmod a+x ${DIRRUN}/initatmos.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/initatmos.bash
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/initatmos.bash
+      ;;
+    PBS)
+      echo "Rodando em PBS"
+      cd ${DIRRUN}
+      # comandos qsub, qstat, etc.
+      ;;
+    GENERIC)
+      echo "Nenhum gerenciador detectado"
+      cd ${DIRRUN}
+      ${DIRRUN}/initatmos.bash
+      ;;
+esac
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+
+
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then
