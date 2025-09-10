@@ -17,6 +17,24 @@ else
    echo "No SCHEDULER detected."
 fi
 
+# Detect hostname
+THOSTNAME=$(hostname -s)
+
+# Identifying several names of the egeon:
+if [ ${THOSTNAME} = "egeon-login" -o ${THOSTNAME} = "headnode" ]
+then
+   export HOSTNAME="egeon"
+fi
+# Make the same for other machines/systems...
+echo "Host detected: $HOSTNAME"
+
+# Set unique key: scheduler + host:
+export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
+
+
+
+
+
 
 # Set environment variables and importants directories-------------------------------------------------- 
 
@@ -30,7 +48,7 @@ export MONANDIR=/mnt/beegfs/carlos.souza/issues/801-scripts_CDCT_multi-env/scrip
 
 # Load your systm setenv:
 
-. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SCHEDULER_SYSTEM}.bash
+. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEY}.bash
 
 
 

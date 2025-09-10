@@ -27,7 +27,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -50,8 +50,8 @@ FCST=3
 
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
-#exit
+time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
 #time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
