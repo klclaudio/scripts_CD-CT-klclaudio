@@ -178,7 +178,7 @@ do
       s/#WALLTIME#/${POST_walltime}/g;
       s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
       s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
-      ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > \
+      ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
       ${DIRRUN}/PostAtmos_node.${node}.sh
    else
       echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
@@ -239,18 +239,19 @@ EOSH
 
    case "${SCHEDULER_SYSTEM}" in
       SLURM)
-         echo "Rodando em SLURM"
+         echo "Sbatch PostAtmos_node.${node}.sh"
          jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
          echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+         echo ""
          ;;
-      PBS)
-         echo "Rodando em PBS"
-         # comandos qsub, qstat, etc.
-        ;;
-      GENERIC)
-         echo "Nenhum gerenciador detectado"
-         ${DIRRUN}/PostAtmos_node.${node}.sh
-         ;;
+#      PBS)
+#         echo "Rodando em PBS"
+#         # comandos qsub, qstat, etc.
+#        ;;
+#      GENERIC)
+#         echo "Nenhum gerenciador detectado"
+#         ${DIRRUN}/PostAtmos_node.${node}.sh
+#         ;;
    esac
   
 
@@ -288,7 +289,7 @@ then
    s/#WALLTIME#/${POST_walltime}/g;
    s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
    s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
-   ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
    ${DIRRUN}/PostAtmos_node.${node}.sh
 else
    echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
@@ -321,17 +322,17 @@ chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Rodando em SLURM"
+      echo "Sbatch PostAtmos_node.${node}.sh"
       sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
       ;;
-   PBS)
-      echo "Rodando em PBS"
-      # comandos qsub, qstat, etc.
-     ;;
-   GENERIC)
-      echo "Nenhum gerenciador detectado"
-      ${DIRRUN}/PostAtmos_node.${node}.sh
-      ;;
+#   PBS)
+#      echo "Rodando em PBS"
+#      # comandos qsub, qstat, etc.
+#     ;;
+#   GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      ${DIRRUN}/PostAtmos_node.${node}.sh
+#      ;;
 esac
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
