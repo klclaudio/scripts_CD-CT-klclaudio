@@ -26,6 +26,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Static ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
@@ -52,9 +55,6 @@ cores=${STATIC_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
-echo ""
-echo "---- Make Static ----"
-echo ""
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]

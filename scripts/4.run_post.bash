@@ -40,6 +40,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Run Post ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
@@ -61,9 +64,6 @@ FCST=${4};        #FCST=40
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
-echo ""
-echo "---- Run Post ----"
-echo ""
 
 
 # Local variables--------------------------------------

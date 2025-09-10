@@ -70,6 +70,10 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Installing the Model ----"
+echo ""
+
 # Standart directories variables:---------------------------------------
 DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  

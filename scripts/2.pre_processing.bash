@@ -45,6 +45,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Pre Processing ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
@@ -75,9 +78,6 @@ final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhh
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
-echo ""
-echo "---- Pre Processing ----"
-echo ""
 
 
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"

@@ -27,6 +27,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Degrib ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
@@ -46,9 +49,6 @@ YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
 #-------------------------------------------------------
 
-echo ""
-echo "---- Make Degrib ----"
-echo ""
 
 
 

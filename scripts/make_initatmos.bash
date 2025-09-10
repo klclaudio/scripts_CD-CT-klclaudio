@@ -26,6 +26,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Init Atmosphere ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
@@ -54,9 +57,6 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-echo ""
-echo "---- Make Init Atmosphere ----"
-echo ""
 
 
 

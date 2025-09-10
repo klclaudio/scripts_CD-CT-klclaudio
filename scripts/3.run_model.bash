@@ -41,6 +41,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Run Model ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
@@ -62,9 +65,6 @@ FCST=${4};        #FCST=6
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
-echo ""
-echo "---- Run Model ----"
-echo ""
 
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
@@ -178,7 +178,7 @@ then
    s,#WALLTIME#,${MODEL_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o%j,g;
    s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e%j,g" \
-   ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > ${DIRRUN}/model.bash 
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/model.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/model.bash 
 fi
@@ -217,23 +217,22 @@ chmod a+x ${DIRRUN}/model.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Rodando em SLURM"
       echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
       echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
       echo -e  "sbatch ${SCRIPTS}/model.bash"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/model.bash
         ;;
-    PBS)
-      echo "Rodando em PBS"
-      cd ${DIRRUN}
-      # comandos qsub, qstat, etc.
-      ;;
-    GENERIC)
-      echo "Nenhum gerenciador detectado"
-      cd ${DIRRUN}
-      ${DIRRUN}/model.bash
-      ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      cd ${DIRRUN}
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/model.bash
+#      ;;
 esac
 mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
