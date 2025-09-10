@@ -43,7 +43,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -60,6 +60,10 @@ YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024042000
 FCST=${4};        #FCST=40
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+
+echo ""
+echo "---- Run Post ----"
+echo ""
 
 
 # Local variables--------------------------------------

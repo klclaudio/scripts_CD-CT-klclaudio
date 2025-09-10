@@ -28,7 +28,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -51,6 +51,10 @@ GEODATA=${DATAIN}/WPS_GEOG
 cores=${STATIC_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
+
+echo ""
+echo "---- Make Static ----"
+echo ""
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
@@ -112,7 +116,7 @@ then
    s,#WALLTIME#,${STATIC_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/logs/static.bash.o%j,g;
    s,#ERRORJOB#,${DATAOUT}/logs/static.bash.e%j,g" \
-   ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > ${DIRRUN}/static.bash 
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/static.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/static.bash 
 fi
@@ -156,20 +160,20 @@ chmod a+x ${DIRRUN}/static.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo -e  "${GREEN}==>${NC} Executing sbatch static.bash...\n"
+      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/static.bash
       ;;
-    PBS)
-      echo "Rodando em PBS"
-      cd ${DIRRUN}
-      # comandos qsub, qstat, etc.
-      ;;
-    GENERIC)
-      echo "Nenhum gerenciador detectado"
-      cd ${DIRRUN}
-      ${DIRRUN}/model.bash
-      ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      cd ${DIRRUN}
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/model.bash
+#      ;;
 esac
 
 

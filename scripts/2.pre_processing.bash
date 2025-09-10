@@ -48,7 +48,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}    
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -75,29 +75,24 @@ final_date=${yyyymmddhhf:0:4}-${yyyymmddhhf:4:2}-${yyyymmddhhf:6:2}_${yyyymmddhh
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 
+echo ""
+echo "---- Pre Processing ----"
+echo ""
+
 
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 #git log -1 --name-only
 git log | head -1
 
 
-case "${SCHEDULER_SYSTEM}" in
-   SLURM)
-      #CR: This should work only in EGEOn system:
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
       echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
       mkdir -p ${DATAIN}
       rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
       rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
       ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
-        ;;
-    PBS)
-        echo "Rodando em PBS"
-        # must construct copy commands for the PBS machine as done in SLURM above.
-        ;;
-    NONE)
-        echo "Nenhum gerenciador detectado"
-        # must construct  copy commands for the GENERIC machine as done in SLURM above.
-        ;;
+      ;;
 esac
 
 
@@ -112,14 +107,15 @@ else
 fi
 #----------------------------------------------------------------------------------
 
+
 # Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
+echo -e  "${GREEN}==>${NC} Running Degrib:\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
 # Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Init Atmosphere...\n"
+echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
 time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 

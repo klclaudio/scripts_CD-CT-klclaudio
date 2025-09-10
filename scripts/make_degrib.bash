@@ -29,7 +29,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
@@ -45,6 +45,11 @@ RES=${2};         #RES=1024002
 YYYYMMDDHHi=${3}; #YYYYMMDDHHi=2024012000
 FCST=${4};        #FCST=24
 #-------------------------------------------------------
+
+echo ""
+echo "---- Make Degrib ----"
+echo ""
+
 
 
 # Local variables--------------------------------------
@@ -63,26 +68,26 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
 #CR: BNDDIR should be setted just for EGEON machine
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
-case "${SCHEDULER_SYSTEM}" in
-   SLURM)
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
       #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
       #     to find the gfs file:
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
       GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
       ;;
-    PBS)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-      echo "Rodando em PBS"
-      # BNDDIR=
-      ;;
-    GENERIC)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-      echo "Nenhum gerenciador detectado"
-      # BNDDIR=
-      ;;
+#    PBS)
+#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+#      #     to find the gfs file:
+#      echo "Rodando em PBS"
+#      # BNDDIR=
+#      ;;
+#    GENERIC)
+#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+#      #     to find the gfs file:
+#      echo "Nenhum gerenciador detectado"
+#      # BNDDIR=
+#      ;;
 esac
 
 #CR: maybe this if should belong to the SLURM kind of running...
@@ -130,7 +135,7 @@ then
    s,#WALLTIME#,${DEGRIB_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j,g;
    s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j,g" \
-   ${SCRIPTS}/stools/submit_${SCHEDULER_SYSTEM}.bash_TEMPLATE > ${DIRRUN}/degrib.bash 
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/degrib.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/degrib.bash 
 fi
@@ -193,19 +198,18 @@ chmod a+x ${DIRRUN}/degrib.bash
 
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
-      echo "Rodando em SLURM"
-      echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
+      echo -e  "${GREEN}==>${NC} Sbatch degrib.bash...\n"
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/degrib.bash
         ;;
-    PBS)
-      echo "Rodando em PBS"
-      # comandos qsub, qstat, etc.
-      ;;
-    GENERIC)
-      echo "Nenhum gerenciador detectado"
-      ${DIRRUN}/degrib.bash
-      ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      ${DIRRUN}/degrib.bash
+#      ;;
 esac
 
 
