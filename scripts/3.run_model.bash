@@ -195,7 +195,7 @@ ulimit -s unlimited
 cd ${DIRRUN}
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${MODEL_ncores} ./\${executable}
 date
 
 #

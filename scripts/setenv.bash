@@ -3,7 +3,6 @@
 
 
 # Squeduler detect:
-
 if command -v sbatch &> /dev/null
 then
    export SCHEDULER_SYSTEM="SLURM"

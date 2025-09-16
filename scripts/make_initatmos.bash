@@ -140,7 +140,7 @@ cd ${DIRRUN}
 
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${INITATMOS_ncores} ./\${executable}
 date
 
 

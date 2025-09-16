@@ -133,7 +133,7 @@ ulimit -v unlimited
 cd ${DIRRUN}
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${STATIC_ncores} ./\${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
