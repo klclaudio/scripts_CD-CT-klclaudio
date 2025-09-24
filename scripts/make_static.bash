@@ -26,9 +26,12 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Static ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -51,6 +54,7 @@ GEODATA=${DATAIN}/WPS_GEOG
 cores=${STATIC_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
+
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
@@ -101,21 +105,24 @@ sed -e "s,#RES#,${RES},g" \
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 mkdir -p ${DATAOUT}/logs
 rm -f ${DIRRUN}/static.bash 
-cat << EOF0 > ${DIRRUN}/static.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${STATIC_jobname}
-#SBATCH --nodes=${STATIC_nnodes} 
-#SBATCH --ntasks=${STATIC_ncores}             
-#SBATCH --tasks-per-node=${STATIC_ncpn}  
-#SBATCH --partition=${STATIC_QUEUE}
-#SBATCH --time=${STATIC_walltime}        
-#SBATCH --output=${DATAOUT}/logs/static.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/logs/static.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
 
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${STATIC_jobname},g;
+   s,#NNODES#,${STATIC_nnodes},g;
+   s,#NTASKS#,${STATIC_ncores},g;
+   s,#NTASKSPNODE#,${STATIC_ncpn},g;
+   s,#PARTITION#,${STATIC_QUEUE},g;
+   s,#WALLTIME#,${STATIC_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/logs/static.bash.o%j,g;
+   s,#ERRORJOB#,${DATAOUT}/logs/static.bash.e%j,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/static.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/static.bash 
+fi
 
-executable=init_atmosphere_model
+cat << EOF0 >> ${DIRRUN}/static.bash 
+export executable=init_atmosphere_model
 
 ulimit -s unlimited
 ulimit -c unlimited
@@ -126,7 +133,7 @@ ulimit -v unlimited
 cd ${DIRRUN}
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${STATIC_ncores} ./\${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
@@ -151,9 +158,25 @@ EOF0
 chmod a+x ${DIRRUN}/static.bash
 
 
-echo -e  "${GREEN}==>${NC} Executing sbatch static.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/static.bash
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/static.bash
+      ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      cd ${DIRRUN}
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/model.bash
+#      ;;
+esac
+
+
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 
 

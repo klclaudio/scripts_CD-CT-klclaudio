@@ -26,9 +26,12 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Init Atmosphere ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -53,6 +56,8 @@ cores=${INITATMOS_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+
+
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
@@ -101,18 +106,26 @@ cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/initatmos.bash 
-cat << EOF0 > ${DIRRUN}/initatmos.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${INITATMOS_jobname}
-#SBATCH --nodes=${INITATMOS_nnodes}                         # depends on how many boundary files are available
-#SBATCH --partition=${INITATMOS_QUEUE} 
-#SBATCH --tasks-per-node=${INITATMOS_ncores}               # only for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
 
+
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${INITATMOS_jobname},g;
+   s,#NNODES#,${INITATMOS_nnodes},g;
+   s,#NTASKS#,${INITATMOS_ncores},g;
+   s,#NTASKSPNODE#,${INITATMOS_ncpn},g;
+   s,#PARTITION#,${INITATMOS_QUEUE},g;
+   s,#WALLTIME#,${INITATMOS_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o%j,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e%j,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/initatmos.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/initatmos.bash 
+fi
+
+
+
+cat << EOF0 >> ${DIRRUN}/initatmos.bash 
 export executable=init_atmosphere_model
 
 ulimit -c unlimited
@@ -127,7 +140,7 @@ cd ${DIRRUN}
 
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${INITATMOS_ncores} ./\${executable}
 date
 
 
@@ -139,10 +152,26 @@ mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 EOF0
 chmod a+x ${DIRRUN}/initatmos.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/initatmos.bash
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/initatmos.bash
+      ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      cd ${DIRRUN}
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/initatmos.bash
+#      ;;
+esac
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+
+
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then

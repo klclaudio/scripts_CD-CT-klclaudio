@@ -1,4 +1,4 @@
-#!/bin/bash 
+#!/bin/bash
 #-----------------------------------------------------------------------------#
 # !SCRIPT: run_model
 #
@@ -41,10 +41,13 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Run Model ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -164,20 +167,23 @@ cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 rm -f ${DIRRUN}/model.bash 
-cat << EOF0 > ${DIRRUN}/model.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${MODEL_jobname}
-#SBATCH --nodes=${MODEL_nnodes}
-#SBATCH --ntasks=${MODEL_ncores}
-#SBATCH --tasks-per-node=${MODEL_ncpn}
-#SBATCH --partition=${MODEL_QUEUE}
-#SBATCH --time=${MODEL_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
 
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${MODEL_jobname},g;
+   s,#NNODES#,${MODEL_nnodes},g;
+   s,#NTASKS#,${MODEL_ncores},g;
+   s,#NTASKSPNODE#,${MODEL_ncpn},g;
+   s,#PARTITION#,${MODEL_QUEUE},g;
+   s,#WALLTIME#,${MODEL_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o%j,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e%j,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/model.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/model.bash 
+fi
 
+cat << EOF0 >> ${DIRRUN}/model.bash 
 export executable=atmosphere_model
 
 ulimit -c unlimited
@@ -188,36 +194,46 @@ ulimit -s unlimited
 
 cd ${DIRRUN}
 
-
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+time mpirun -np ${MODEL_ncores} ./\${executable}
 date
 
 #
 # move dataout, clean up and remove files/links
 #
-
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
 cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-
 mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-
-
 EOF0
 chmod a+x ${DIRRUN}/model.bash
 
 
-echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
-echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
-echo -e  "sbatch ${SCRIPTS}/model.bash"
-sbatch --wait ${DIRRUN}/model.bash
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
+      echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
+      echo -e  "sbatch ${SCRIPTS}/model.bash"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/model.bash
+        ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      cd ${DIRRUN}
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/model.bash
+#      ;;
+esac
 mv ${DIRRUN}/model.bash ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 
 

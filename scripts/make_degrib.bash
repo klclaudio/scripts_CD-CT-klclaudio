@@ -27,9 +27,12 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Degrib ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
@@ -47,11 +50,10 @@ FCST=${4};        #FCST=24
 #-------------------------------------------------------
 
 
+
+
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
-OPERDIREXP=${OPERDIR}/${EXP}
-BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
@@ -64,6 +66,31 @@ cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
 
 # Se nao existir CI no diretorio do IO, 
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
+#CR: BNDDIR should be setted just for EGEON machine
+#CR: some local variables were mobed into the SLURM section, particularly for egeon
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
+      OPERDIREXP=${OPERDIR}/${EXP}
+      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+      ;;
+#    PBS)
+#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+#      #     to find the gfs file:
+#      echo "Rodando em PBS"
+#      # BNDDIR=
+#      ;;
+#    GENERIC)
+#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+#      #     to find the gfs file:
+#      echo "Nenhum gerenciador detectado"
+#      # BNDDIR=
+#      ;;
+esac
+
+#CR: maybe this if should belong to the SLURM kind of running...
 if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
    if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
@@ -97,17 +124,24 @@ cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
-cat << EOF0 > ${DIRRUN}/degrib.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${DEGRIB_jobname}
-#SBATCH --nodes=${DEGRIB_nnodes}
-#SBATCH --partition=${DEGRIB_QUEUE}
-#SBATCH --ntasks=${DEGRIB_ncores}             
-#SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j     # File name for standard error output
-#
+
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${DEGRIB_jobname},g;
+   s,#NNODES#,${DEGRIB_nnodes},g;
+   s,#NTASKS#,${DEGRIB_ncores},g;
+   s,#NTASKSPNODE#,${DEGRIB_ncpn},g;
+   s,#PARTITION#,${DEGRIB_QUEUE},g;
+   s,#WALLTIME#,${DEGRIB_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/degrib.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/degrib.bash 
+fi
+
+
+cat << EOF0 >> ${DIRRUN}/degrib.bash 
 
 ulimit -s unlimited
 ulimit -c unlimited
@@ -161,10 +195,22 @@ echo "End of degrib Job"
 EOF0
 chmod a+x ${DIRRUN}/degrib.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/degrib.bash
 
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Sbatch degrib.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/degrib.bash
+        ;;
+#    PBS)
+#      echo "Rodando em PBS"
+#      # comandos qsub, qstat, etc.
+#      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      ${DIRRUN}/degrib.bash
+#      ;;
+esac
 
 
 files_ungrib=("${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}")
