@@ -20,14 +20,17 @@ fi
 THOSTNAME=$(hostname -s)
 
 # Identifying several names of the egeon:
-if [ ${THOSTNAME} = "egeon-login" -o ${THOSTNAME} = "headnode" ]
-then
-   export HOSTNAME="egeon"
-fi
-if [ ${THOSTNAME} = "ian01" -o ${THOSTNAME} = "ian02" ]
-then
-   export HOSTNAME="ian"
-fi
+case ${THOSTNAME} in
+   egeon-login|headnode)
+      HOSTNAME="egeon"
+      ;;
+   ian[0-9]*)
+      HOSTNAME="ian"
+      ;;
+esac
+export HOSTNAME
+
+
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
 
