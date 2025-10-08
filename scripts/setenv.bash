@@ -1,4 +1,4 @@
-#!/bin/bash -x
+#!/bin/bash
 
 
 
@@ -24,6 +24,10 @@ if [ ${THOSTNAME} = "egeon-login" -o ${THOSTNAME} = "headnode" ]
 then
    export HOSTNAME="egeon"
 fi
+if [ ${THOSTNAME} = "ian01" -o ${THOSTNAME} = "ian02" ]
+then
+   export HOSTNAME="ian"
+fi
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
 
@@ -42,7 +46,7 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/801-scripts_CDCT_multi-env/scripts_CD-CT/sources/MONAN-Model_1.4.2-rc
+export MONANDIR=/p/home/carlos.souza/monan/scripts_CD-CT/sources/MONAN-Model_1.4.2-rc
 
 
 # Load your systm setenv:
