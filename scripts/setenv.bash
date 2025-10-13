@@ -49,7 +49,7 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/p/scratchin/sylvio.neto/scripts_CD-CT/sources/MONAN-Model_1.4.2-rc
+export MONANDIR=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 export stools=/p/scratchin/sylvio.neto/scripts_CD-CT/scripts/stools
 echo "dir dados = "${DIR_DADOS}
 echo ""
@@ -59,11 +59,12 @@ echo "dir scripts = "${DIR_SCRIPTS}
 
 # Load your systm setenv:
 
-#. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEY}.bash
+. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEY}.bash
+
 
 read -p "exportando setenv correto"
 echo ""
-. ${stools}/setenv_${SYSTEM_KEY}.bash
+#. ${stools}/setenv_${SYSTEM_KEY}.bash
 
 
 

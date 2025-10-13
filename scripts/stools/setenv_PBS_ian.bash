@@ -75,8 +75,6 @@ export DIRDADOS=/p/scratchin/${USER}/monan/MONAN_v1.4.x
 export OPERDIR=/p/scratchin/${USER}/monan/CIs
 #export OPERDIR=/p/oper/dados/ioper/tempo
 
-export NETCDF=/opt/cray/pe/netcdf/4.9.0.15/INTEL/2023.2
-export PNETCDF=/opt/cray/pe/parallel-netcdf/1.12.3.15/INTEL/2023.2
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
 export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib:$LD_LIBRARY_PATH

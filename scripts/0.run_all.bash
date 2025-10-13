@@ -40,18 +40,18 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 
 # Input variables:-----------------------------------------------------
 github_link="https://github.com/monanadmin/MONAN-Model.git"
-monan_branch=1.4.2-rc
+monan_branch=feature/monan-833-NF
 convertmpas_branch=1.2.0
 EXP=GFS
 RES=1024002
-YYYYMMDDHHi=2024010100
-FCST=3
+YYYYMMDDHHi=2025061600
+FCST=24
 #----------------------------------------------------------------------
 
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
-#exit
+time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
 #time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
