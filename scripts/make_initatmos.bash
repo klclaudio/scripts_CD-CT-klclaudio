@@ -102,9 +102,12 @@ cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-
-
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
+
+chmod 755 ${DIRRUN}/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+
 rm -f ${DIRRUN}/initatmos.bash 
 
 
@@ -126,6 +129,18 @@ fi
 
 
 cat << EOF0 >> ${DIRRUN}/initatmos.bash 
+#!/bin/bash -x
+#PBS -N ${INITATMOS_jobname}
+#PBS -l select=${INITATMOS_nnodes}:ncpus=${INITATMOS_ncores}
+#PBS -q ${INITATMOS_QUEUE}
+#PBS -l walltime=${STATIC_walltime}
+#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o${PBS_JOBID}
+#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e${PBS_JOBID}
+#PBS -l place=excl
+##PBS -l mem=500000
+
+
+
 export executable=init_atmosphere_model
 
 ulimit -c unlimited
@@ -133,14 +148,14 @@ ulimit -v unlimited
 ulimit -s unlimited
 
 
-. $(pwd)/setenv.bash
-
 cd ${DIRRUN}
+. setenv.bash
+. setenv_PBS_ian.bash
 
-
-
+echo ""
 date
-time mpirun -np ${INITATMOS_ncores} ./\${executable}
+#time mpiexec -np ${INITATMOS_ncores} ./\${executable} 
+time mpirun -np ${INITATMOS_ncores} ./\${executable} 
 date
 
 
@@ -158,11 +173,12 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/initatmos.bash
       ;;
-#    PBS)
-#      echo "Rodando em PBS"
-#      cd ${DIRRUN}
-#      # comandos qsub, qstat, etc.
-#      ;;
+    PBS)
+      echo "Rodando em PBS"
+      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      cd ${DIRRUN}
+      qsub -W block=true ${DIRRUN}/initatmos.bash
+      ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      cd ${DIRRUN}

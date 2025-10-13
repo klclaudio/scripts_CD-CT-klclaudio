@@ -116,6 +116,7 @@ fi
 # NLEVS get from t_iso_levels in Registry_isobaric.xml:
 if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
 then
+   chmod 777 ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml
    NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
 else
    NLEV=18
@@ -127,7 +128,13 @@ nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
 diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${N_MODEL_LEV}.nc
 
+
+
 rm -fr ${DIRRUN}/qctlinfo.gs
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
+
+chmod 777 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 cat > ${DIRRUN}/qctlinfo.gs <<EOGS
 'reinit'
 'sdfopen ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}' 
@@ -137,11 +144,28 @@ say result
 
 'quit'
 EOGS
+
+
 cd ${DIRRUN}
+
+. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/stools/setenv_PBS_ian.bash 
+chmod 777 *
+
+
 grads -blc "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctlinfo.ctl
+
+#grads -lbcx "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctlinfo.ctl
+
+chmod 777 ${DIRRUN}/qctlinfo.ctl
+read -p "verifcar grads ctl"
+ls -ltr ${DIRRUN}/qctlinfo.ctl
 timectl=$(grep tdef ${DIRRUN}/qctlinfo.ctl | cut -d" " -f4)
 sed -i '3a\options template' ${DIRRUN}/qctlinfo.ctl
 sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qctlinfo.ctl
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
+read -p "copiando ctl"
+chmod 777 ${DIRRUN}/*
+#cp ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

@@ -45,6 +45,10 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+
+read -p "carregando variaveis de ambiente"
+
+
 echo ""
 echo "---- Pre Processing ----"
 echo ""
@@ -95,7 +99,7 @@ case "${SYSTEM_KEY}" in
       ;;
 esac
 
-
+read -p "fazendo o make static"
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
@@ -107,12 +111,17 @@ else
 fi
 #----------------------------------------------------------------------------------
 
+read -p "fazendo degrib do gfs"
+
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Running Degrib:\n"
-time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+#time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
+
+
+read -p "fazendo o init atmosphere"
 
 # Init Atmosphere phase:------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"

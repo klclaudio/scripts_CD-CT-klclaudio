@@ -61,17 +61,20 @@ if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
    then
+      mkdir -p ${DATAIN}/fixed   
       cd ${DATAIN}/fixed
       echo -e "${GREEN}==>${NC} downloading meshes tgz files ... \n"
       wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}.tar.gz
       wget https://www2.mmm.ucar.edu/projects/mpas/atmosphere_meshes/x1.${RES}_static.tar.gz
       tar -xzvf x1.${RES}.tar.gz
       tar -xzvf x1.${RES}_static.tar.gz
+      chmod 777 *
    fi
    echo -e "${GREEN}==>${NC} Creating x1.${RES}.graph.info.part.${cores} ... \n"
    cd ${DATAIN}/fixed
    gpmetis -minconn -contig -niter=200 x1.${RES}.graph.info ${cores}
    rm -fr x1.${RES}.tar.gz x1.${RES}_static.tar.gz
+   chmod 777 *
 fi
 
 
@@ -92,6 +95,7 @@ cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
@@ -120,20 +124,36 @@ then
 else
    echo "#!/bin/bash " > ${DIRRUN}/static.bash 
 fi
-
+chmod 755 ${DIRRUN}/*
 cat << EOF0 >> ${DIRRUN}/static.bash 
+#!/bin/bash -x
+#PBS -N ${STATIC_jobname}
+#PBS -l select=${STATIC_nnodes}:ncpus=${STATIC_ncores}
+#PBS -q ${STATIC_QUEUE}
+#PBS -l walltime=${STATIC_walltime}
+#PBS -o ${DATAOUT}/logs/static.bash.o${PBS_JOBID}
+#PBS -e ${DATAOUT}/logs/static.bash.e${PBS_JOBID}
+#PBS -l place=excl
+##PBS -l mem=500000
+
+
 export executable=init_atmosphere_model
 
 ulimit -s unlimited
 ulimit -c unlimited
 ulimit -v unlimited
 
-. $(pwd)/setenv.bash
+
+. ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/stools/setenv_PBS_ian.bash
 
 cd ${DIRRUN}
 
+
+chmod 777 *
 date
-time mpirun -np ${STATIC_ncores} ./\${executable}
+time mpiexec -np ${STATIC_ncores} ./\${executable}
+#time mpirun -np ${STATIC_ncores} ./\${executable}
 date
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
@@ -164,11 +184,12 @@ case "${SCHEDULER_SYSTEM}" in
       cd ${DIRRUN}
       sbatch --wait ${DIRRUN}/static.bash
       ;;
-#    PBS)
-#      echo "Rodando em PBS"
-#      cd ${DIRRUN}
-#      # comandos qsub, qstat, etc.
-#      ;;
+    PBS)
+      echo "Rodando em PBS"
+      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+      cd ${DIRRUN}
+      qsub -W block=true ${DIRRUN}/static.bash
+      ;;
 #    GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      cd ${DIRRUN}

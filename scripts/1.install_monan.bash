@@ -160,7 +160,7 @@ echo ""
 echo -e  "${GREEN}==>${NC} Making compile script...\n"
 
 cd $MONANDIR
-
+read -p "escrevendo o make-all"
 cat << EOF > make-all.sh
 #!/bin/bash
 #Usage: make target CORE=[core] [options]
@@ -195,6 +195,8 @@ cat << EOF > make-all.sh
 
 
 . ${SCRIPTS}/setenv.bash
+
+
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
 rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere 
@@ -207,8 +209,17 @@ export PNETCDF=${PNETCDFDIR}
 export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
+
+echo "fazendo o make atmosphere"
+read -p "fazendo make atmosphere"
 make clean CORE=atmosphere
-make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
+echo "compilando o atomosphere"
+read -p "compilando o atmosphere"
+
+make -j 8 intel CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
 
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
@@ -219,7 +230,10 @@ make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 make clean CORE=init_atmosphere
-make -j 8 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 intel CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
+
 
 mv ${MONANDIR}/init_atmosphere_model ${EXECS}
 make clean CORE=init_atmosphere
@@ -240,24 +254,27 @@ chmod a+x make-all.sh
 echo ""
 echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model...\n"
 echo ""
-
+read -p "rodando make-all..."
 . ${MONANDIR}/make-all.sh
 
 
+
+read -p "instalando convert mpas"
 # install convert_mpas
 echo ""
 echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
-module purge
-module load gnu9/9.4.0
-module load ohpc
-module load phdf5
-module load netcdf
-module load netcdf-fortran
+#module purge
+#module load gnu9/9.4.0
+#module load ohpc
+#module load phdf5
+#module load netcdf
+#module load netcdf-fortran
 module list
 
 cd ${CONVERT_MPAS_DIR}
 echo ""
 echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
+read -p "aperte enter para instalar convert mpas"
 make clean
 make  2>&1 | tee make.convert.output
 

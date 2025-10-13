@@ -179,14 +179,26 @@ then
    s,#NTASKSPNODE#,${MODEL_ncpn},g;
    s,#PARTITION#,${MODEL_QUEUE},g;
    s,#WALLTIME#,${MODEL_walltime},g;
-   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o,g;
-   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e,g" \
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o%j,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e%j,g" \
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/model.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/model.bash 
 fi
 
 cat << EOF0 >> ${DIRRUN}/model.bash 
+#!/bin/bash -x
+#PBS -N ${MODEL_jobname}
+#PBS -q ${MODEL_QUEUE}
+#PBS -l select=${MODEL_nnodes}:ncpus=${MODEL_ncpn}:mpiprocs=${MODEL_ncpn}
+#PBS -l walltime=${MODEL_walltime}
+#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o${PBS_JOBID}
+#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.e${PBS_JOBID}
+#PBS -l place=excl
+#PBS -V
+##PBS -l mem=500000
+
+
 
 
 export executable=atmosphere_model
@@ -233,7 +245,6 @@ case "${SCHEDULER_SYSTEM}" in
       echo "Rodando em PBS"
       echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
       cd ${DIRRUN}
-      exit
       qsub -W block=true ${DIRRUN}/model.bash
       ;;
 #    GENERIC)

@@ -1,0 +1,12 @@
+#!/bin/bash -x
+#PBS -N #JOBNAME#
+#PBS -q #PARTITION#
+#PBS -l select=#NNODES#:ncpus=#NTASKSPNODE#:mpiprocs=#NTASKSPNODE#
+#PBS -l walltime=#WALLTIME#
+#PBS -o #OUTPUTJOB#\${PBS_JOBID}
+#PBS -e #ERRORJOB#\${PBS_JOBID}
+#PBS -l place=excl
+#PBS -V
+
+
+
