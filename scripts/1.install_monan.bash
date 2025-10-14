@@ -159,7 +159,6 @@ echo ""
 echo -e  "${GREEN}==>${NC} Making compile script...\n"
 
 cd $MONANDIR
-read -p "escrevendo o make-all"
 cat << EOF > make-all.sh
 #!/bin/bash
 #Usage: make target CORE=[core] [options]
