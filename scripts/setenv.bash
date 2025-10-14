@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 # Squeduler detect:
 if command -v sbatch &> /dev/null
 then
@@ -23,15 +21,12 @@ THOSTNAME=$(hostname -s)
 case ${THOSTNAME} in
    egeon-login|headnode)
       HOSTNAME="egeon"
-      export MAKE_TARG=gfortran
       ;;
    ian[0-9]*)
       HOSTNAME="ian"
-      export MAKE_TARG=intel-xd2000
       ;;
 esac
 export HOSTNAME
-
 
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
@@ -40,31 +35,22 @@ echo "Host detected: $HOSTNAME"
 export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 
-
-
-
-
 # Set environment variables and importants directories-------------------------------------------------- 
 
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
+export DIR_SCRIPTS=$DIR_SCRIPTS
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
-echo "dir dados = "${DIR_DADOS}
-echo "dir scripts = "${DIR_SCRIPTS}
+export MONANDIR=$MONANDIR
 
-
-# Load your systm setenv:
-
-. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEY}.bash
-
-
+# Load your system setenv:
+. ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
 
 echo ""
 module list
+
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:

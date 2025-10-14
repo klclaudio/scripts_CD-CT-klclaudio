@@ -45,7 +45,7 @@ function checkout_system() {
       echo -e "${RED}==>${NC} Please check if you have this branch. Exiting ..."
       exit -1
   fi
-  git log -1 --name-only
+  git log | head -1
 }
 #-----------------------------------------------------------------------------#
 
@@ -69,6 +69,7 @@ fi
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
+
 echo ""
 echo "---- Installing the Model ----"
 echo ""
@@ -97,9 +98,12 @@ echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 
 
 # Local variables:-----------------------------------------------------
+DIR_SCRIPTS=${SCRIPTS}
 MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
+$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$DIR_SCRIPTS;" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
+chmod 755 setenv.bash
 #----------------------------------------------------------------------
 
 #=====================================================================================
@@ -159,6 +163,7 @@ echo ""
 echo -e  "${GREEN}==>${NC} Making compile script...\n"
 
 cd $MONANDIR
+
 cat << EOF > make-all.sh
 #!/bin/bash
 #Usage: make target CORE=[core] [options]
@@ -167,7 +172,6 @@ cat << EOF > make-all.sh
 #    gfortran
 #    xlf
 #    pgi
-#    intel-xd2000 :: cptec/inpe ian xd2000
 #Availabe Cores:
 #    atmosphere
 #    init_atmosphere
@@ -208,11 +212,10 @@ export PNETCDF=${PNETCDFDIR}
 export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
-
-echo "fazendo o make atmosphere"
-read -p "fazendo make atmosphere"
 make clean CORE=atmosphere
-make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 intel-xd2000 CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
 
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
@@ -223,7 +226,8 @@ make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 make clean CORE=init_atmosphere
-make -j 8 ${MAKE_TARG} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 intel-xd2000 CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 
 
@@ -253,11 +257,15 @@ echo ""
 # install convert_mpas
 echo ""
 echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
+#module purge
+#module load gnu9/9.4.0
+#module load ohpc
+#module load phdf5
+#module load netcdf
+#module load netcdf-fortran
+module list
 
 cd ${CONVERT_MPAS_DIR}
-echo ""
-echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
-read -p "aperte enter para instalar convert mpas"
 make clean
 make  2>&1 | tee make.convert.output
 
