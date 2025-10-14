@@ -23,9 +23,11 @@ THOSTNAME=$(hostname -s)
 case ${THOSTNAME} in
    egeon-login|headnode)
       HOSTNAME="egeon"
+      export MAKE_TARG=gfortran
       ;;
    ian[0-9]*)
       HOSTNAME="ian"
+      export MAKE_TARG=intel-xd2000
       ;;
 esac
 export HOSTNAME
@@ -49,28 +51,14 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
-export stools=/p/scratchin/sylvio.neto/scripts_CD-CT/scripts/stools
+export MONANDIR=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 echo "dir dados = "${DIR_DADOS}
-echo ""
 echo "dir scripts = "${DIR_SCRIPTS}
-
 
 
 # Load your systm setenv:
 
 . ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEY}.bash
-
-
-read -p "exportando setenv correto"
-echo ""
-#. ${stools}/setenv_${SYSTEM_KEY}.bash
-
-
-
-
-
-
 
 
 

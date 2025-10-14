@@ -17,7 +17,6 @@ module list
 # Submiting variables:
 
 # PRE-Static phase:
-#export STATIC_QUEUE="batch"
 export STATIC_QUEUE="pesqextra"
 export STATIC_ncores=32
 export STATIC_nnodes=1
@@ -27,7 +26,6 @@ export STATIC_walltime="02:00:00"
 
 
 # PRE-Degrib phase:
-#export DEGRIB_QUEUE="batch"
 export DEGRIB_QUEUE="pesqextra"
 export DEGRIB_ncores=1
 export DEGRIB_nnodes=1
@@ -37,7 +35,6 @@ export DEGRIB_walltime="02:00:00"
 
 
 # PRE-Init Atmosphere phase:
-#export INITATMOS_QUEUE="batch"
 export INITATMOS_QUEUE="pesqextra"
 export INITATMOS_ncores=64
 export INITATMOS_nnodes=1
@@ -47,7 +44,6 @@ export INITATMOS_walltime="02:00:00"
 
 
 # Model phase:
-#export MODEL_QUEUE="batch"
 export MODEL_QUEUE="pesqextra"
 export MODEL_ncores=512
 export MODEL_nnodes=8
@@ -57,7 +53,6 @@ export MODEL_walltime="8:00:00"
 
 
 # Post phase:
-#export POST_QUEUE="batch"
 export POST_QUEUE="pesqextra"
 ### export POST_ncores=1 not used yet
 export POST_nnodes=1
@@ -71,9 +66,8 @@ export NETCDF=${NETCDF_DIR}
 export PNETCDF=${PNETCDF_DIR}
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/p/scratchin/${USER}/monan/MONAN_v1.4.x
-export OPERDIR=/p/scratchin/${USER}/monan/CIs
-#export OPERDIR=/p/oper/dados/ioper/tempo
+export DIRDADOS=/p/monan/MONAN_v1.4.x
+export OPERDIR=/p/monan/CIs
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
@@ -81,13 +75,4 @@ export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib:$LD_LIBRARY_PATH
 
 
 
-
-
-
-
-
-
-
-#export DIRDADOS=/p/home/monan/dados/MONAN_v1.4.x ###???
-### ??? export OPERDIR=/oper/dados/ioper/tempo
 
