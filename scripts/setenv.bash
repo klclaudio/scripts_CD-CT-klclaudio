@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 # Squeduler detect:
 if command -v sbatch &> /dev/null
 then
@@ -21,18 +23,25 @@ THOSTNAME=$(hostname -s)
 case ${THOSTNAME} in
    egeon-login|headnode)
       HOSTNAME="egeon"
+      export MAKE_TARG=gfortran
       ;;
    ian[0-9]*)
       HOSTNAME="ian"
+      export MAKE_TARG=intel-xd2000
       ;;
 esac
 export HOSTNAME
+
 
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
 
 # Set unique key: scheduler + host:
 export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
+
+
+
+
 
 
 # Set environment variables and importants directories-------------------------------------------------- 
@@ -50,7 +59,6 @@ export MONANDIR=$MONANDIR
 
 echo ""
 module list
-
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
