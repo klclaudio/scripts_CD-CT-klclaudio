@@ -46,9 +46,6 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 
-read -p "carregando variaveis de ambiente"
-
-
 echo ""
 echo "---- Pre Processing ----"
 echo ""
@@ -89,19 +86,16 @@ echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 git log | head -1
 
 
-case "${SYSTEM_KEY}" in
-   SLURM_egeon)
-      echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
-      mkdir -p ${DATAIN}
-      rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-      rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
-      ;;
-esac
+echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
+mkdir -p ${DATAIN}
+rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
-read -p "fazendo o make static"
+
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
+rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
@@ -110,8 +104,7 @@ else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
 #----------------------------------------------------------------------------------
-
-read -p "fazendo degrib do gfs"
+exit
 
 
 # Degrib phase:---------------------------------------------------------------------
@@ -120,8 +113,6 @@ echo -e  "${GREEN}==>${NC} Running Degrib:\n"
 #----------------------------------------------------------------------------------
 
 
-
-read -p "fazendo o init atmosphere"
 
 # Init Atmosphere phase:------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"

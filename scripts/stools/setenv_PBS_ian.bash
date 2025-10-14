@@ -50,7 +50,8 @@ export MODEL_nnodes=8
 export MODEL_ncpn=64
 export MODEL_jobname="Model.MONAN"
 export MODEL_walltime="8:00:00"
-
+#PBS -l select=8:ncpus=64:mpiprocs=64 ==   512mpi,  8nodes, 64cpn
+#PBS -l select=16:ncpus=64:mpiprocs=64 == 1024mpi, 16nodes, 64cpn
 
 # Post phase:
 export POST_QUEUE="pesqextra"
@@ -66,7 +67,7 @@ export NETCDF=${NETCDF_DIR}
 export PNETCDF=${PNETCDF_DIR}
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
-export DIRDADOS=/p/monan/MONAN_v1.4.x
+export DIRDADOS=/p/monan/dados/MONAN_v1.4.x-CR
 export OPERDIR=/p/monan/CIs
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL

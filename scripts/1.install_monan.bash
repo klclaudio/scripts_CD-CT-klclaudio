@@ -102,7 +102,7 @@ MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 $(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$DIR_SCRIPTS;" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
-chmod 755 setenv.bash
+chmod 755 ${SCRIPTS}/setenv.bash
 #----------------------------------------------------------------------
 
 #=====================================================================================

@@ -22,15 +22,14 @@ THOSTNAME=$(hostname -s)
 # Identifying several names of the egeon:
 case ${THOSTNAME} in
    egeon-login|headnode)
-      HOSTNAME="egeon"
+      export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
       ;;
    ian[0-9]*)
-      HOSTNAME="ian"
+      export HOSTNAME="ian"
       export MAKE_TARG=intel-xd2000
       ;;
 esac
-export HOSTNAME
 
 
 # Make the same for other machines/systems...
@@ -49,9 +48,9 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$DIR_SCRIPTS
+export DIR_SCRIPTS=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/scripts
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$MONANDIR
+export MONANDIR=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 # Load your system setenv:
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
