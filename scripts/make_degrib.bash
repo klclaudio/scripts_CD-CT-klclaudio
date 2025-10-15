@@ -117,6 +117,9 @@ esac
 #fi
 
 #Fazendo download da condicao de contorno
+echo "server"
+echo $HOSTNAME
+
 if [ "$SERVER" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
         echo "rsync OK!"
@@ -164,7 +167,6 @@ do
   fi
 done
 
-
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
@@ -177,6 +179,8 @@ cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
+ls -ltr ${DIRRUN}
+echo ""
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
@@ -186,33 +190,14 @@ then
    s,#NTASKSPNODE#,${DEGRIB_ncpn},g;
    s,#PARTITION#,${DEGRIB_QUEUE},g;
    s,#WALLTIME#,${DEGRIB_walltime},g;
-   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j,g;
-   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j,g" \
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e,g" \
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/degrib.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/degrib.bash 
 fi
 
-
-
 cat << EOF0 >> ${DIRRUN}/degrib.bash 
-###!/bin/bash -x
-###PBS -N ${DEGRIB_jobname}
-###PBS -l select=${DEGRIB_nnodes}:ncpus=${DEGRIB_ncpn}
-###PBS -l walltime=${STATIC_walltime}
-###PBS -q ${DEGRIB_QUEUE}
-###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o${PBS_JOBID}
-###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e${PBS_JOBID}
-
-
-# -----------------------------
-# Inicialização do ambiente PBS
-# -----------------------------
-#cd $PBS_O_WORKDIR
-echo "Rodando no host: $(hostname)"
-echo "Diretório de submissão: $PBS_O_WORKDIR"
-echo "Nós alocados:"
-cat $PBS_NODEFILE
 
 ulimit -s unlimited
 ulimit -c unlimited
@@ -314,4 +299,5 @@ do
 done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

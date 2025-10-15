@@ -39,25 +39,31 @@ echo "Host detected: $HOSTNAME"
 export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 
-
-
-
-
 # Set environment variables and importants directories-------------------------------------------------- 
-
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/scripts
+export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/p/scratchin/carlos.souza/issues/833-scrpts-monan-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+export MONANDIR=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+
+export stools=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts/stools
+
+echo "dir dados = "${DIR_DADOS}
+echo ""
+echo "dir scripts = "${DIR_SCRIPTS}
+
 
 # Load your system setenv:
+
+#. ${stools}/setenv_${SYSTEM_KEY}.bash
+
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
-
-echo ""
 module list
+echo ""
+read -p "mostrando modulos carregados"
+
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
@@ -71,6 +77,7 @@ export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 
 # Colors:
+#
 export GREEN='\033[1;32m'  # Green
 export RED='\033[1;31m'    # Red
 export NC='\033[0m'        # No Color

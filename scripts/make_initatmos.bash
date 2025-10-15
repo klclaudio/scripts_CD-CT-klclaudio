@@ -119,27 +119,14 @@ then
    s,#NTASKSPNODE#,${INITATMOS_ncpn},g;
    s,#PARTITION#,${INITATMOS_QUEUE},g;
    s,#WALLTIME#,${INITATMOS_walltime},g;
-   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o%j,g;
-   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e%j,g" \
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e,g" \
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/initatmos.bash 
 else
    echo "#!/bin/bash " > ${DIRRUN}/initatmos.bash 
 fi
 
-
-
 cat << EOF0 >> ${DIRRUN}/initatmos.bash 
-###!/bin/bash -x
-###PBS -N ${INITATMOS_jobname}
-###PBS -l select=${INITATMOS_nnodes}:ncpus=${INITATMOS_ncores}
-###PBS -q ${INITATMOS_QUEUE}
-###PBS -l walltime=${STATIC_walltime}
-###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o${PBS_JOBID}
-###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e${PBS_JOBID}
-###PBS -l place=excl
-####PBS -l mem=500000
-
-
 
 export executable=init_atmosphere_model
 
@@ -196,5 +183,5 @@ then
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi
-
+chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}
