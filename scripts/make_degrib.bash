@@ -59,12 +59,63 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-mkdir -p ${HOME}/local/lib64
-cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
-cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+if [ "$SERVER" = "egeon" ]; then
+    mkdir -p ${HOME}/local/lib64
+    cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
+    cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+fi
+
+#Se nao existir CI no diretorio do IO, 
+# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
+#CR: BNDDIR should be setted just for EGEON machine
+#CR: some local variables were mobed into the SLURM section, particularly for egeon
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
+     #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+     #     to find the gfs file:
+      OPERDIREXP=${OPERDIR}/${EXP}
+      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+      ;;
+    PBS_ian)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
+      echo "Rodando em PBS"
+      OPERDIREXP=${OPERDIR}/${EXP}
+      # BNDDIR=
+      GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+      if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
+          echo "rsync OK!"
+      else
+         echo "rsync error!"
+         echo "Paths: ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2  =>  ${DATAIN}/${YYYYMMDDHHi}"
+         exit 1
+      fi
+      ;;
+    GENERIC)
+      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
+      #     to find the gfs file:
+      echo "Nenhum gerenciador detectado"
+      # BNDDIR=
+      ;;
+esac
 
 
-read -p "fazendo download do grib"
+
+#CR: maybe this if should belong to the SLURM kind of running...
+#if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+#then
+#   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+#   then
+#      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
+#      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
+#      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+#      exit 1            
+#   else
+#      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+#   fi    
+#fi
+
 #Fazendo download da condicao de contorno
 if [ "$SERVER" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
@@ -95,55 +146,6 @@ if [ ! -s "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib
 fi
 
 
-
-read -p " Condicao de contorno ok em datain (GFS)"
- 
-
-
-
-
-# Se nao existir CI no diretorio do IO, 
-# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
-#CR: BNDDIR should be setted just for EGEON machine
-#CR: some local variables were mobed into the SLURM section, particularly for egeon
-#case "${SYSTEM_KEY}" in
-#   SLURM_egeon)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-#      OPERDIREXP=${OPERDIR}/${EXP}
-#      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-#      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
-#      ;;
-#    PBS)
-#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-#      #     to find the gfs file:
-#      echo "Rodando em PBS"
-#      # BNDDIR=
-#      ;;
-#    GENERIC)
-#      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-#      #     to find the gfs file:
-#      echo "Nenhum gerenciador detectado"
-#      # BNDDIR=
-#      ;;
-#esac
-
-#CR: maybe this if should belong to the SLURM kind of running...
-#if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-#then
-#   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-#   then
-#      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-#      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
-#      echo -e "${RED}==>${NC}Check ${GCCCIS}"
-#      exit 1            
-#   else
-#      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-#   fi    
-#fi
-
-
-
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 
 
@@ -162,27 +164,19 @@ do
   fi
 done
 
-echo ""
-read -p "arquivos STATIC, Vtable, ungrib, e GFS ok"
-echo ""
 
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
 #cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+#cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
-
-read -p "arquivos copiados para dirrun)"
-ls -ltr ${DIRRUN}
-echo ""
-
-read -p "verificar arquivos em dirun,  tem que quer , STATIC // Vtable // ungrib  // gfs  // namelist.wps   // setenv.bash  // link_grib  //"
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
@@ -200,18 +194,15 @@ else
 fi
 
 
-echo ""
-read -p "verificar dirrun"
-echo ""
 
 cat << EOF0 >> ${DIRRUN}/degrib.bash 
-#!/bin/bash -x
-#PBS -N ${DEGRIB_jobname}
-#PBS -l select=${DEGRIB_nnodes}:ncpus=${DEGRIB_ncpn}
-#PBS -l walltime=${STATIC_walltime}
-#PBS -q ${DEGRIB_QUEUE}
-#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o${PBS_JOBID}
-#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e${PBS_JOBID}
+###!/bin/bash -x
+###PBS -N ${DEGRIB_jobname}
+###PBS -l select=${DEGRIB_nnodes}:ncpus=${DEGRIB_ncpn}
+###PBS -l walltime=${STATIC_walltime}
+###PBS -q ${DEGRIB_QUEUE}
+###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o${PBS_JOBID}
+###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e${PBS_JOBID}
 
 
 # -----------------------------

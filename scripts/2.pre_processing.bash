@@ -95,7 +95,7 @@ ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
+####rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
 then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
@@ -104,12 +104,12 @@ else
    echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
 fi
 #----------------------------------------------------------------------------------
-exit
+
 
 
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Running Degrib:\n"
-#time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
