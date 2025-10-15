@@ -130,7 +130,6 @@ do
   fi
 done
 
-read -p "arquivos ok"
 
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
@@ -165,7 +164,7 @@ do
 done
 
 cd ${DIRRUN}
-chmod 777 *
+chmod 755 ${DIRRUN}/*
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
@@ -192,21 +191,21 @@ do
    fi
    
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
-#!/bin/bash -x
-#PBS -N MO.Pos${node}
-#PBS -q ${POST_QUEUE}
+####!/bin/bash -x
+###PBS -N MO.Pos${node}
+###PBS -q ${POST_QUEUE}
 #PBS -l select=1:ncpus=1:mpiprocs=1
-#PBS -l walltime=${POST_walltime}
-#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
-#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
-#PBS -l place=excl
-#PBS -V
+###PBS -l walltime=${POST_walltime}
+###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
+###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
+###PBS -l place=excl
+###PBS -V
 
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
 . ${SCRIPTS}/stools/setenv_PBS_ian.bash
-chmod 777 *
+chmod 755 ${DIRRUN}/*
 
 echo "Executing posts ${inicio} to ${fim} in node Node ${node}."
 
@@ -225,7 +224,7 @@ do
    i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
    cd ${DIRRUN}/dir.\${i}
-   chmod 777 *
+   chmod 755 *
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
@@ -254,7 +253,7 @@ do
 done
  
 wait
- 
+
 EOSH
    
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
@@ -273,7 +272,6 @@ EOSH
          echo -e  "${GREEN}==>${NC} Sbatch PostAtmos_node.${node}.sh...\n"
          cd ${DIRRUN}
 	 echo "executando qsub pegando jobid"
-	 read -p "tecle enter"
 	 jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
           ;;
 #      GENERIC)
@@ -325,14 +323,14 @@ fi
 
 
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
-#!/bin/bash
-#PBS -N MO.Pos${node}
-#PBS -q ${POST_QUEUE}
+###!/bin/bash
+###PBS -N MO.Pos${node}
+###PBS -q ${POST_QUEUE}
 #PBS -l select=1:ncpus=1:mpiprocs=1
-#PBS -l walltime=${POST_walltime}
-#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
-#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
-#PBS -V
+###PBS -l walltime=${POST_walltime}
+###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
+###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
+###PBS -V
 
 
 cd ${DIRRUN}
@@ -351,8 +349,8 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
-cd ${DIRRUN}/..
-rm -fr ${DIRRUN}
+####cd ${DIRRUN}/..
+####rm -fr ${DIRRUN}
 
 
 EOSH
@@ -368,7 +366,6 @@ case "${SCHEDULER_SYSTEM}" in
       echo -e  "${GREEN}==>${NC} Sbatch PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
       echo "submetendo de novo"
-      read -p "verificar"
       jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
 
      ;;
@@ -380,8 +377,5 @@ esac
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
-echo ""
-read -p "tudo certo - chamando make template"
-echo ""
-chmod 777 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
-time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+####time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
