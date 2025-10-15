@@ -129,15 +129,15 @@ fi
 
 
 cat << EOF0 >> ${DIRRUN}/initatmos.bash 
-#!/bin/bash -x
-#PBS -N ${INITATMOS_jobname}
-#PBS -l select=${INITATMOS_nnodes}:ncpus=${INITATMOS_ncores}
-#PBS -q ${INITATMOS_QUEUE}
-#PBS -l walltime=${STATIC_walltime}
-#PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o${PBS_JOBID}
-#PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e${PBS_JOBID}
-#PBS -l place=excl
-##PBS -l mem=500000
+###!/bin/bash -x
+###PBS -N ${INITATMOS_jobname}
+###PBS -l select=${INITATMOS_nnodes}:ncpus=${INITATMOS_ncores}
+###PBS -q ${INITATMOS_QUEUE}
+###PBS -l walltime=${STATIC_walltime}
+###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o${PBS_JOBID}
+###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e${PBS_JOBID}
+###PBS -l place=excl
+####PBS -l mem=500000
 
 
 
