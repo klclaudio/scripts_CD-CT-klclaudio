@@ -233,7 +233,6 @@ case "${SCHEDULER_SYSTEM}" in
       echo "Rodando em PBS"
       echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
       cd ${DIRRUN}
-      exit
       qsub -W block=true ${DIRRUN}/model.bash
       ;;
 #    GENERIC)
