@@ -100,11 +100,11 @@ cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 
 #comentar as linhas de baixo e descomentar a copia de tudo caso nao funcione
-cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
+#cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+#cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 #descomentar a linha de baixo e comentar as duas de cima caso nao funcione // copiado tambem setenv_pbs_ian
-#cp -f ${DATAIN}/fixed/x1.${RES}* ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}* ${DIRRUN}
 cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 
 
@@ -202,12 +202,12 @@ case "${SCHEDULER_SYSTEM}" in
 #      ;;
 esac
 
-
+#read -p "movendo arquivos"
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
-mv log.init_atmosphere.0000.out ${DATAOUT}/logs/
-mv log.init_atmosphere*err ${DATAOUT}/logs/
+#mv log.init_atmosphere.0000.out ${DATAOUT}/logs/
+#mv log.init_atmosphere*err ${DATAOUT}/logs/
 
 
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]

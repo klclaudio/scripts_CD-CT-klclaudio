@@ -45,19 +45,20 @@ convertmpas_branch=1.2.0
 EXP=GFS
 RES=1024002
 YYYYMMDDHHi=2025061600
-FCST=24
+#FCST=24
+FCST=6
 #----------------------------------------------------------------------
 
 
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 
 # STEP 3: Executing the Model run:
-time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+#time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 
 # STEP 4: Executing the Post of Model run:
-#time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 exit

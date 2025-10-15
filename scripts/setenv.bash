@@ -24,10 +24,12 @@ case ${THOSTNAME} in
    egeon-login|headnode)
       export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
+      export MAKE_TARG2=gfortran
       ;;
    ian[0-9]*)
       export HOSTNAME="ian"
       export MAKE_TARG=intel-xd2000
+      export MAKE_TARG2=intel2-xd2000
       ;;
 esac
 

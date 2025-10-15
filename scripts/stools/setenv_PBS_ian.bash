@@ -70,10 +70,10 @@ export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
 
-#export DIRDADOS=/p/monan/dados/MONAN_v1.4.x-CR
+export DIRDADOS=/p/monan/dados/MONAN_v1.4.x-CR
 #export OPERDIR=/p/monan/CIs
 
-export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
+#export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
 #export DIRDADOS=/p/scratchin/${USER}/monan/MONAN_v1.4.x
 
 export OPERDIR=/p/scratchin/${USER}/monan/CIs

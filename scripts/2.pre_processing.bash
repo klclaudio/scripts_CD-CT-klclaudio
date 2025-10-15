@@ -111,6 +111,7 @@ case "${SYSTEM_KEY}" in
       rsync -av --exclude='x1*' ${DIRDADOS}/MONAN_datain/datain/fixed/ ${DATAIN}/fixed/
       chmod 775 ${DATAIN}/fixed/*
       #cp -f ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${EXECS}
+      cp -f /p/monan/dados/MONAN_v1.4.x-CR/MONAN_datain/execs/ungrib.exe ${EXECS}
       chmod 775 ${EXECS}/*
       ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}    
       ;;
@@ -122,13 +123,13 @@ esac
 #rm -fr ${DATAOUT}/logs/*
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
 ####rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
-then
+#if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+#then
    echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-else
-   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
-fi
+#else
+#   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
+#fi
 #----------------------------------------------------------------------------------
 
 

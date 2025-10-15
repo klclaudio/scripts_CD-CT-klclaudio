@@ -228,7 +228,7 @@ make clean CORE=atmosphere
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 
 make clean CORE=init_atmosphere
-make -j 8 ${MAKE_TARG} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 #make -j 8 intel-xd2000 CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
 
