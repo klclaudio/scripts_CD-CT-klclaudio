@@ -43,7 +43,7 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
+export DIR_SCRIPTS=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
 export MONANDIR=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 

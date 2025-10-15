@@ -89,33 +89,33 @@ echo ""
 echo ${SYSTEM_KEY}
 echo ""
 
-echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+#echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
+#mkdir -p ${DATAIN}
+#rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+#rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+#ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
 
-read -p "Verificar a copia de datain/fixed // datain/execs //  e link do WPS"
+#read -p "Verificar a copia de datain/fixed // datain/execs //  e link do WPS"
 
-#case "${SYSTEM_KEY}" in
-#   SLURM_egeon)
-#      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for Egeon... \n"
-#      mkdir -p ${DATAIN}
-#      rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-#      rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-#      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
-#      ;;
-#   PBS_ian)
-#      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for IAN... \n"
-#      mkdir -p ${DATAIN}/fixed        
-#      rsync -av --exclude='x1*' ${DIRDADOS}/MONAN_datain/datain/fixed/ ${DATAIN}/fixed/
-#      chmod 775 ${DATAIN}/fixed/*
-#      #cp -f ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${EXECS}
-#      chmod 775 ${EXECS}/*
-#      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}    
-#      ;;
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
+      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for Egeon... \n"
+      mkdir -p ${DATAIN}
+      rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+      rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+      ;;
+   PBS_ian)
+      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for IAN... \n"
+      mkdir -p ${DATAIN}/fixed        
+      rsync -av --exclude='x1*' ${DIRDADOS}/MONAN_datain/datain/fixed/ ${DATAIN}/fixed/
+      chmod 775 ${DATAIN}/fixed/*
+      #cp -f ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${EXECS}
+      chmod 775 ${EXECS}/*
+      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}    
+      ;;
 
-#esac
+esac
 
 
 #rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
