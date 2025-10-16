@@ -182,8 +182,8 @@ do
       /#NTASKSPNODE#/d;
       s/#PARTITION#/${POST_QUEUE}/g;
       s/#WALLTIME#/${POST_walltime}/g;
-      s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
-      s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
+      s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+      s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
       ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
       ${DIRRUN}/PostAtmos_node.${node}.sh
    else
@@ -191,16 +191,6 @@ do
    fi
    
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
-####!/bin/bash -x
-###PBS -N MO.Pos${node}
-###PBS -q ${POST_QUEUE}
-#PBS -l select=1:ncpus=1:mpiprocs=1
-###PBS -l walltime=${POST_walltime}
-###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
-###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
-###PBS -l place=excl
-###PBS -V
-
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
@@ -272,7 +262,7 @@ EOSH
          echo -e  "${GREEN}==>${NC} Sbatch PostAtmos_node.${node}.sh...\n"
          cd ${DIRRUN}
 	 echo "executando qsub pegando jobid"
-	 jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+	 jobid[${node}]=$(qsub -W block=true  ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
           ;;
 #      GENERIC)
 #         echo "Nenhum gerenciador detectado"
@@ -311,27 +301,15 @@ then
    /#NTASKSPNODE#/d;
    s/#PARTITION#/${POST_QUEUE}/g;
    s/#WALLTIME#/${POST_walltime}/g;
-   s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j|g;
-   s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j|g" \
+   s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+   s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
    ${DIRRUN}/PostAtmos_node.${node}.sh
 else
    echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
 fi
 
-
-
-
 cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
-###!/bin/bash
-###PBS -N MO.Pos${node}
-###PBS -q ${POST_QUEUE}
-#PBS -l select=1:ncpus=1:mpiprocs=1
-###PBS -l walltime=${POST_walltime}
-###PBS -o ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o${PBS_JOBID}
-###PBS -e ${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e${PBS_JOBID}
-###PBS -V
-
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
@@ -366,7 +344,7 @@ case "${SCHEDULER_SYSTEM}" in
       echo -e  "${GREEN}==>${NC} Sbatch PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
       echo "submetendo de novo"
-      jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+      jobid[${node}]=$(qsub -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
 
      ;;
 #   GENERIC)
