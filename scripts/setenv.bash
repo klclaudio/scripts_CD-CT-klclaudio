@@ -49,7 +49,6 @@ export DIR_SCRIPTS=$(pwd)
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
 export MONANDIR=$(pwd) 
 
-#export stools=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts/stools
 
 echo "dir dados = "${DIR_DADOS}
 echo ""
@@ -58,13 +57,11 @@ echo "dir scripts = "${DIR_SCRIPTS}
 
 # Load your system setenv:
 
-#. ${stools}/setenv_${SYSTEM_KEY}.bash
-
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
-module list
+#module list
 echo ""
-read -p "Mostrando modulos carregados - Pressione Enter para continuar.... "
+#read -p "Mostrando modulos carregados - Pressione Enter para continuar.... "
 echo ""
 
 #-----------------------------------------------------------------------
