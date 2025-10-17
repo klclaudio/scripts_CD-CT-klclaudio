@@ -45,11 +45,9 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts
+export DIR_SCRIPTS=$(pwd)
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
-
-export stools=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts/stools
+export MONANDIR=$MONANDIR
 
 echo "dir dados = "${DIR_DADOS}
 echo ""
@@ -57,14 +55,11 @@ echo "dir scripts = "${DIR_SCRIPTS}
 
 
 # Load your system setenv:
-
-#. ${stools}/setenv_${SYSTEM_KEY}.bash
-
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
-module list
-echo ""
-read -p "mostrando modulos carregados"
+#module list
+#echo ""
+#read -p "mostrando modulos carregados"
 
 
 #-----------------------------------------------------------------------

@@ -57,7 +57,6 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 
 
 
-
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
 then
    if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info ]
@@ -78,9 +77,6 @@ then
    chmod 777 *
 fi
 
-#Removendo o arquivo static destargeadodo ucar
-rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
-
 
 
 files_needed=("${EXECS}/init_atmosphere_model" "${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores}" "${DATAIN}/fixed/x1.${RES}.grid.nc" "${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC" "${SCRIPTS}/namelists/streams.init_atmosphere.STATIC")
@@ -98,15 +94,8 @@ done
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-
-#comentar as linhas de baixo e descomentar a copia de tudo caso nao funcione
-#cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
-#cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
-
-#descomentar a linha de baixo e comentar as duas de cima caso nao funcione // copiado tambem setenv_pbs_ian
-cp -f ${DATAIN}/fixed/x1.${RES}* ${DIRRUN}
-cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
-
+cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
+cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
@@ -152,7 +141,7 @@ ulimit -v unlimited
 cd ${DIRRUN}
 
 
-chmod 777 *
+chmod 755 *
 date
 
 #time mpiexec -np ${STATIC_ncores} ./\${executable}
@@ -182,7 +171,6 @@ EOF0
 chmod a+x ${DIRRUN}/static.bash
 rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
 
-
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
       echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
@@ -206,14 +194,14 @@ esac
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
-#mv log.init_atmosphere.0000.out ${DATAOUT}/logs/
-#mv log.init_atmosphere*err ${DATAOUT}/logs/
+mv log.init_atmosphere.0000.out ${DATAOUT}/logs/
+mv log.init_atmosphere*err ${DATAOUT}/logs/
 
 
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]
 then
    mv ${DIRRUN}/x1.${RES}.static.nc ${DATAIN}/fixed
-   chmod 777 ${DATAIN}/fixed/*
+   chmod 755 ${DATAIN}/fixed/*
 else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1

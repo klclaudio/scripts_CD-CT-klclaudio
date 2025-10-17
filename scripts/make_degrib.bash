@@ -209,7 +209,8 @@ export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
 
 cd ${DIRRUN}
 . setenv.bash
-. setenv_PBS_ian.bash
+# remover setenv do ian do dirrun
+#. setenv_PBS_ian.bash
 
 echo""
 echo "listando os modulos"
@@ -299,5 +300,5 @@ do
 done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}
