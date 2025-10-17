@@ -69,6 +69,10 @@ fi
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
 #CR: BNDDIR should be setted just for EGEON machine
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
+
+echo "system_key=$SYSTEM_KEY"
+echo "operdir=$OPERDIR"
+
 case "${SYSTEM_KEY}" in
    SLURM_egeon)
      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
@@ -82,7 +86,7 @@ case "${SYSTEM_KEY}" in
       #     to find the gfs file:
       echo "Rodando em PBS"
       OPERDIREXP=${OPERDIR}/${EXP}
-      # BNDDIR=
+      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
       GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
       if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
           echo "rsync OK!"
@@ -117,8 +121,11 @@ esac
 #fi
 
 #Fazendo download da condicao de contorno
-echo "server"
-echo $HOSTNAME
+
+echo "hostname=$HOSTNAME"
+echo "operdirexp=$OPERDIREXP"
+echo "bnddir=$BNDDIR"
+echo "gcccis=$GCCCIS"
 
 if [ "$HOSTNAME" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
@@ -141,6 +148,7 @@ else
         fi
     fi
 fi
+
 if [ ! -s "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]; then
     echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
     echo -e "${RED}==>${NC}Check ${BNDDIR} or."
@@ -170,20 +178,14 @@ done
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
-
-cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-
+#cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+#cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-
-cp -f ${SCRIPTS}/stools/setenv_${SCHEDULER_SYSTEM}_${HOSTNAME}.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
-ls -ltr ${DIRRUN}
-echo ""
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
@@ -211,8 +213,6 @@ export PMIX_MCA_gds=hash
 export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
 
 cd ${DIRRUN}
-#. setenv.bash
-#. setenv_PBS_ian.bash
 
 . ${SCRIPTS}/setenv.bash
 
@@ -223,7 +223,7 @@ rm -f GRIBFILE.* namelist.wps
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
-#read -p "executando o link_grib"
+
 echo ""
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
@@ -235,8 +235,6 @@ echo "submetendo jobs ungrib"
 time mpirun -np 1 ./ungrib.exe
 
 
-#time mpiexec -np 1 ./ungrib.exe
-#time /opt/pbs/bin/mpiexec -np 1 ./ungrib.exe
 date
 
 
@@ -299,5 +297,5 @@ do
 done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

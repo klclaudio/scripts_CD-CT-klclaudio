@@ -3,7 +3,6 @@
 # Load modules:
 module purge
 module load PrgEnv-intel
-module load intel/2025.0
 module load craype-x86-turin
 module load cray-hdf5/1.14.3.3
 module load cray-netcdf/4.9.0.15
@@ -74,9 +73,6 @@ export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
 
-#export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
-#export DIRDADOS=/p/scratchin/${USER}/monan/MONAN_v1.4.x
-#export OPERDIR=/p/scratchin/${USER}/monan/CIs
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
