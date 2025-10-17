@@ -145,15 +145,11 @@ how_many_nodes ${nfiles} ${maxpostpernode}
 # Cria os diretorios e arquivos/links para cada saida do convert_mpas:
 cd ${DIRRUN}
 
-cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
-
 for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
    mkdir -p ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}/dir.${i}
-#   cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}/dir.${i}
    cp -f ${SCRIPTS}/namelists/include_fields.diag${VARTABLE}  ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE}
    cp -f ${DIRRUN}/dir.${i}/include_fields.diag${VARTABLE} ${DIRRUN}/dir.${i}/include_fields
    sed -e "s,#NISOLEV#,${NLEV},g;s,#NMODELLEV#,${N_MODEL_LEV},g" \
@@ -166,7 +162,7 @@ done
 cd ${DIRRUN}
 chmod 755 ${DIRRUN}/*
 
-
+# Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 echo "scheduler system = " ${SCHEDULER_SYSTEM} 
 echo "system key = " ${SYSTEM_KEY}
 echo ""
@@ -177,17 +173,17 @@ fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
 while [ ${inicio} -le ${nfiles} ]
 do
    rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
-   
+
    if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
    then
-      sed -e "s/#JOBNAME#/MO.Pos${node}/g; \
-      s/#NNODES#/1/g; \
-      /#NTASKS#/d; \
-      /#NTASKSPNODE#/d; \
-      s/#PARTITION#/${POST_QUEUE}/g; \
-      s/#WALLTIME#/${POST_walltime}/g; \
-      s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o|g; \
-      s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e|g" \
+      sed -e "s,#JOBNAME#,MO.Pos${node},g;
+      s,#NNODES#,${POST_nnodes},g;
+      s,#NTASKS#,${POST_ncores},g;
+      s,#NTASKSPNODE#,${POST_ncpn},g;
+      s,#PARTITION#,${POST_QUEUE},g;
+      s,#WALLTIME#,${POST_walltime},g;
+      s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+      s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
       ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
       ${DIRRUN}/PostAtmos_node.${node}.sh
    else
@@ -198,8 +194,6 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
-
-#. ${SCRIPTS}/stools/setenv_PBS_ian.bash
 chmod 755 ${DIRRUN}/*
 
 echo "Executing posts ${inicio} to ${fim} in node Node ${node}."
@@ -241,7 +235,7 @@ do
    diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${N_MODEL_LEV}.nc
    
    cd ${DIRRUN}/dir.\${i}
-   chmod 775 *
+   chmod 755 *
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
    echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}"  >> convert_mpas.output
    
@@ -253,9 +247,9 @@ EOSH
    
   
    chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
-   chmod 775 ${DIRRUN}/*
+   chmod 755 ${DIRRUN}/*
    cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+   chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
    case "${SCHEDULER_SYSTEM}" in
       SLURM)
          echo "Sbatch PostAtmos_node.${node}.sh"
@@ -301,14 +295,14 @@ rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
 
 if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
 then
-   sed -e "s/#JOBNAME#/MO.Pos${node}/g; \
-   s/#NNODES#/1/g; \
-   /#NTASKS#/d; \
-   /#NTASKSPNODE#/d; \
-   s/#PARTITION#/${POST_QUEUE}/g; \
-   s/#WALLTIME#/${POST_walltime}/g; \
-   s|#OUTPUTJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o|g; \
-   s|#ERRORJOB#|${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e|g" \
+   sed -e "s,#JOBNAME#,MO.Pos${node},g;
+   s,#NNODES#,${POST_nnodes},g;
+   s,#NTASKS#,${POST_ncores},g;
+   s,#NTASKSPNODE#,${POST_ncpn},g;
+   s,#PARTITION#,${POST_QUEUE},g;
+   s,#WALLTIME#,${POST_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
    ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
    ${DIRRUN}/PostAtmos_node.${node}.sh
 else
@@ -319,7 +313,6 @@ cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh
 
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
-#. ${SCRIPTS}/stools/setenv_PBS_ian.bash
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post

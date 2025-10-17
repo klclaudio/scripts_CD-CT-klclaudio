@@ -45,6 +45,7 @@ export MODEL_walltime="8:00:00"
 # Post phase:
 export POST_QUEUE="batch"
 ### export POST_ncores=1 not used yet
+export POST_ncores=1
 export POST_nnodes=1
 export POST_ncpn=32
 export POST_jobname="Post.MONAN"

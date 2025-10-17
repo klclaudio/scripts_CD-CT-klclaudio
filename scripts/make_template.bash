@@ -116,11 +116,12 @@ fi
 # NLEVS get from t_iso_levels in Registry_isobaric.xml:
 if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
 then
-   chmod 775 ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml
+####   chmod 755 ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml
    NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
 else
    NLEV=18
 fi
+echo "checar na ian: nlev=$NLEV"
 
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
@@ -132,9 +133,8 @@ diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RE
 
 rm -fr ${DIRRUN}/qctlinfo.gs
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 cat > ${DIRRUN}/qctlinfo.gs <<EOGS
 'reinit'
 'sdfopen ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}' 
@@ -149,15 +149,14 @@ EOGS
 cd ${DIRRUN}
 
 . ${SCRIPTS}/setenv.bash
-#. ${SCRIPTS}/stools/setenv_PBS_ian.bash 
-chmod 775 *
+chmod 755 *
 
 
 grads -blc "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctlinfo.ctl
 
 #grads -lbcx "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctlinfo.ctl
 
-chmod 775 ${DIRRUN}/qctlinfo.ctl
+chmod 755 ${DIRRUN}/qctlinfo.ctl
 
 
 timectl=$(grep tdef ${DIRRUN}/qctlinfo.ctl | cut -d" " -f4)
@@ -165,7 +164,7 @@ sed -i '3a\options template' ${DIRRUN}/qctlinfo.ctl
 sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qctlinfo.ctl
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
 
-chmod 775 ${DIRRUN}/*
+chmod 755 ${DIRRUN}/*
 #cp ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

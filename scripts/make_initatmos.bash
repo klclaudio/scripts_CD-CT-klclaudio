@@ -103,7 +103,6 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 
 chmod 755 ${DIRRUN}/*
 chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
@@ -136,8 +135,6 @@ ulimit -s unlimited
 
 
 cd ${DIRRUN}
-#. setenv.bash
-#. setenv_PBS_ian.bash
 . ${SCRIPTS}/setenv.bash
 
 echo ""
