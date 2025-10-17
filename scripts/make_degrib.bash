@@ -59,7 +59,7 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-if [ "$SERVER" = "egeon" ]; then
+if [ "$HOSTNAME" = "egeon" ]; then
     mkdir -p ${HOME}/local/lib64
     cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
     cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
@@ -69,20 +69,23 @@ fi
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
 #CR: BNDDIR should be setted just for EGEON machine
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
+echo "system_key=$SYSTEM_KEY"
+echo "operdir=$OPERDIR"
 case "${SYSTEM_KEY}" in
    SLURM_egeon)
      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
      #     to find the gfs file:
+      echo "Rodando em SLURM"
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
+      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
       ;;
     PBS_ian)
       #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
       #     to find the gfs file:
       echo "Rodando em PBS"
       OPERDIREXP=${OPERDIR}/${EXP}
-      # BNDDIR=
+      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
       GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
       if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
           echo "rsync OK!"
@@ -117,10 +120,12 @@ esac
 #fi
 
 #Fazendo download da condicao de contorno
-echo "server"
-echo $HOSTNAME
-
-if [ "$SERVER" = "egeon" ]; then
+#a partir daqui a implementacao na Egeon ja falhava.. tentando corrigir
+echo "hostname=$HOSTNAME"
+echo "operdirexp=$OPERDIREXP"
+echo "bnddir=$BNDDIR"
+echo "gcccis=$GCCCIS"
+if [ "$HOSTNAME" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
         echo "rsync OK!"
     else
@@ -175,7 +180,8 @@ cp -f ${EXECS}/ungrib.exe ${DIRRUN}
 cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
+# revisar a copia abaixo no xd2000, manter por enquanto para nao quebrar la'
+#cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
@@ -224,7 +230,7 @@ rm -f GRIBFILE.* namelist.wps
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
-#read -p "executando o link_grib"
+
 echo ""
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 

@@ -136,8 +136,7 @@ ulimit -s unlimited
 
 
 cd ${DIRRUN}
-. setenv.bash
-. setenv_PBS_ian.bash
+. ${SCRIPTS}/setenv.bash
 
 echo ""
 date
@@ -183,5 +182,5 @@ then
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi
-chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

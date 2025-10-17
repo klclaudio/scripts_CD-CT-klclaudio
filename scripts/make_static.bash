@@ -206,6 +206,5 @@ else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1
 fi
-exit
 rm -fr ${DIRRUN}
 

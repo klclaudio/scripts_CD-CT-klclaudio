@@ -70,13 +70,12 @@ export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
 
-export DIRDADOS=/p/monan/dados/MONAN_v1.4.x-CR
-#export OPERDIR=/p/monan/CIs
+export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
+export OPERDIR=/oper/dados/ioper/tempo
 
 #export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
 #export DIRDADOS=/p/scratchin/${USER}/monan/MONAN_v1.4.x
-
-export OPERDIR=/p/scratchin/${USER}/monan/CIs
+#export OPERDIR=/p/scratchin/${USER}/monan/CIs
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
