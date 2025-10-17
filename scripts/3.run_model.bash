@@ -163,6 +163,7 @@ cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.output ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.diagnostics${VARTABLE} ${DIRRUN}/stream_list.atmosphere.diagnostics
 cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
 
 
 
@@ -195,6 +196,8 @@ ulimit -v unlimited
 ulimit -s unlimited
 
 cd ${DIRRUN}
+#. setenv.bash
+#. setenv_PBS_ian.bash
 . ${SCRIPTS}/setenv.bash
 
 

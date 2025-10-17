@@ -69,13 +69,10 @@ fi
 # busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
 #CR: BNDDIR should be setted just for EGEON machine
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
-echo "system_key=$SYSTEM_KEY"
-echo "operdir=$OPERDIR"
 case "${SYSTEM_KEY}" in
    SLURM_egeon)
      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
      #     to find the gfs file:
-      echo "Rodando em SLURM"
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
       GCCCIS=/mnt/beegfs/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
@@ -85,7 +82,7 @@ case "${SYSTEM_KEY}" in
       #     to find the gfs file:
       echo "Rodando em PBS"
       OPERDIREXP=${OPERDIR}/${EXP}
-      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+      # BNDDIR=
       GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
       if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
           echo "rsync OK!"
@@ -120,11 +117,9 @@ esac
 #fi
 
 #Fazendo download da condicao de contorno
-#a partir daqui a implementacao na Egeon ja falhava.. tentando corrigir
-echo "hostname=$HOSTNAME"
-echo "operdirexp=$OPERDIREXP"
-echo "bnddir=$BNDDIR"
-echo "gcccis=$GCCCIS"
+echo "server"
+echo $HOSTNAME
+
 if [ "$HOSTNAME" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
         echo "rsync OK!"
@@ -175,13 +170,15 @@ done
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
-#cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-#cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+
+cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+
 cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
-# revisar a copia abaixo no xd2000, manter por enquanto para nao quebrar la'
-#cp -f ${SCRIPTS}/stools/setenv_PBS_ian.bash ${DIRRUN}
+
+cp -f ${SCRIPTS}/stools/setenv_${SCHEDULER_SYSTEM}_${HOSTNAME}.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
 
@@ -214,14 +211,10 @@ export PMIX_MCA_gds=hash
 export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
 
 cd ${DIRRUN}
-. setenv.bash
-# remover setenv do ian do dirrun
+#. setenv.bash
 #. setenv_PBS_ian.bash
 
-echo""
-echo "listando os modulos"
-echo ""
-module list
+. ${SCRIPTS}/setenv.bash
 
 ldd ungrib.exe
 
@@ -230,7 +223,7 @@ rm -f GRIBFILE.* namelist.wps
 
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
-
+#read -p "executando o link_grib"
 echo ""
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
@@ -306,5 +299,5 @@ do
 done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
-chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

@@ -21,12 +21,12 @@ THOSTNAME=$(hostname -s)
 
 # Identifying several names of the egeon:
 case ${THOSTNAME} in
-   egeon-login|headnode)
+   egeon-login|headnode|n[0-9]|n[1-2][0-9]|n3[0-3])
       export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
       export MAKE_TARG2=gfortran
       ;;
-   ian[0-9]*)
+   ian[0-9]*|cn-0[0-9][0-9][0-9])
       export HOSTNAME="ian"
       export MAKE_TARG=intel-xd2000
       export MAKE_TARG2=intel2-xd2000
@@ -45,9 +45,11 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(pwd)
+export DIR_SCRIPTS=/mnt/beegfs/sylvio.neto/issues/nova833/scripts_CD-CT/scripts
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$MONANDIR
+export MONANDIR=/mnt/beegfs/sylvio.neto/issues/nova833/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+
+#export stools=/p/scratchin/sylvio.neto/issues/833/scripts_CD-CT/scripts/stools
 
 echo "dir dados = "${DIR_DADOS}
 echo ""
@@ -55,12 +57,15 @@ echo "dir scripts = "${DIR_SCRIPTS}
 
 
 # Load your system setenv:
+
+#. ${stools}/setenv_${SYSTEM_KEY}.bash
+
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
-#module list
-#echo ""
-#read -p "mostrando modulos carregados"
-
+module list
+echo ""
+read -p "Mostrando modulos carregados - Pressione Enter para continuar.... "
+echo ""
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:

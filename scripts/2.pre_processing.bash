@@ -82,49 +82,73 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 
 
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
+#git log -1 --name-only
 git log | head -1
 
+echo ""
+echo ${SYSTEM_KEY}
+echo ""
 
-echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+#echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
+#mkdir -p ${DATAIN}
+#rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+#rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+#ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+
+#read -p "Verificar a copia de datain/fixed // datain/execs //  e link do WPS"
+
+case "${SYSTEM_KEY}" in
+   SLURM_egeon)
+      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for Egeon... \n"
+      mkdir -p ${DATAIN}
+      rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+      rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+      ;;
+   PBS_ian)
+      echo -e  "${GREEN}==>${NC} copying and linking fixed input data for IAN... \n"
+      mkdir -p ${DATAIN}/fixed        
+      rsync -av --exclude='x1*' ${DIRDADOS}/MONAN_datain/datain/fixed/ ${DATAIN}/fixed/
+      chmod 775 ${DATAIN}/fixed/*
+      #cp -f ${DIRDADOS}/MONAN_datain/execs/ungrib.exe ${EXECS}
+      cp -f /p/monan/dados/MONAN_v1.4.x-CR/MONAN_datain/execs/ungrib.exe ${EXECS}
+      chmod 775 ${EXECS}/*
+      ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}    
+      ;;
+
+esac
 
 
-
+#rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
+#rm -fr ${DATAOUT}/logs/*
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
-if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
-then
-   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
+####rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
+#if [ ! -s ${DATAIN}/fixed/x1.${RES}.static.nc ]
+#then
+#   echo -e "${GREEN}==>${NC} Creating static.bash for submiting init_atmosphere to create x1.${RES}.static.nc...\n"
    time ./make_static.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-else
-   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
-fi
+#else
+#   echo -e "${GREEN}==>${NC} File x1.${RES}.static.nc already exist in ${DATAIN}/fixed.\n"
+#fi
 #----------------------------------------------------------------------------------
 
 
-
+#if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2} ]
+#then
 # Degrib phase:---------------------------------------------------------------------
-if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2} ]
-then
-   echo -e  "${GREEN}==>${NC} Running Degrib:\n"
-   time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-else
-   echo -e "${GREEN}==>${NC} File ${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}  already exist in ${DATAOUT}/${YYYYMMDDHHi}/Pre.\n"
-fi
+echo -e  "${GREEN}==>${NC} Running Degrib:\n"
+time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
+#else
+#echo -e "${GREEN}==>${NC} File ${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}  already exist in ${DATAOUT}/${YYYYMMDDHHi}/Pre.\n"
+#fi
+
 #----------------------------------------------------------------------------------
 
 
 
 # Init Atmosphere phase:------------------------------------------------------------
-if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
-then
-   echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
-   time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
-else
-   echo -e "${GREEN}==>${NC} File x1.${RES}.init.nc already exist in ${DATAOUT}/${YYYYMMDDHHi}/Pre.\n"
-fi
+echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
+time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
