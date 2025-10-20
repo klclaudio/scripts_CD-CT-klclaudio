@@ -142,14 +142,23 @@ ulimit -v unlimited
 . ${SCRIPTS}/setenv.bash
 
 cd ${DIRRUN}
-
-
 chmod 755 *
-date
-
-time mpirun -np ${STATIC_ncores} ./\${executable}
 
 date
+beg_secs=\`date +"%s"\`
+
+if [ "$HOSTNAME" = "egeon" ]; then
+   time mpirun -np ${STATIC_ncores} ./\${executable}
+else
+   time mpirun --ppn ${STATIC_ncpn} -np ${STATIC_ncores} --depth=${STATIC_nthreads} --cpu-bind depth ./\${executable}
+fi
+
+date
+end_secs=\`date +"%s"\`
+
+let wallsecs=\$end_secs-\$beg_secs
+echo "STATIC time taken by run in seconds is " \$wallsecs
+
 
 grep "Finished running" log.init_atmosphere.0000.out >& /dev/null
 if [ \$? -ne 0 ]; then
@@ -166,9 +175,6 @@ echo "  ####################################"
 echo " "
 
 
-mv log.init_atmosphere.0000.out ${DATAOUT}/logs/log.init_atmosphere.0000.x1.${RES}.static.nc.out
-
-
 EOF0
 chmod a+x ${DIRRUN}/static.bash
 rm -fr ${DATAIN}/fixed/x1.${RES}.static.nc
@@ -182,7 +188,7 @@ case "${SCHEDULER_SYSTEM}" in
       ;;
     PBS)
       echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} Sbatch static.bash...\n"
+      echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/static.bash
       ;;
@@ -193,12 +199,10 @@ case "${SCHEDULER_SYSTEM}" in
 #      ;;
 esac
 
-#read -p "movendo arquivos"
 mv ${DIRRUN}/static.bash ${DATAOUT}/logs/
 mv ${DIRRUN}/streams.init_atmosphere ${DATAOUT}/logs/
 mv ${DIRRUN}/namelist.init_atmosphere ${DATAOUT}/logs/
-#mv log.init_atmosphere.0000.out ${DATAOUT}/logs/
-mv log.init_atmosphere*err ${DATAOUT}/logs/
+mv log.init_atmosphere.* ${DATAOUT}/logs/
 
 
 if [ -s ${DIRRUN}/x1.${RES}.static.nc ]

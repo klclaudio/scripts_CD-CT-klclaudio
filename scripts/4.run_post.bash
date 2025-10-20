@@ -187,7 +187,7 @@ do
       s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
       s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
       ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
-      ${DIRRUN}/PostAtmosY_node.${node}.sh
+      ${DIRRUN}/PostAtmos_node.${node}.sh
    else
       echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
    fi
@@ -299,8 +299,10 @@ if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
    sed -e "s,#JOBNAME#,MO.Pos${node},g;
    s,#NNODES#,${POST_nnodes},g;
+   s,#NCPUS#,${POST_ncpus},g;
    s,#NTASKS#,${POST_ncores},g;
    s,#NTASKSPNODE#,${POST_ncpn},g;
+   s,#NTHREADS#,${POST_nthreads},g;
    s,#PARTITION#,${POST_QUEUE},g;
    s,#WALLTIME#,${POST_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;

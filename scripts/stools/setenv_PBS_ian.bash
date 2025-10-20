@@ -18,10 +18,10 @@ module list
 
 # PRE-Static phase:
 export STATIC_QUEUE="pesqextra"
-export STATIC_ncores=32
+export STATIC_ncores=128
 export STATIC_nnodes=1
-export STATIC_ncpus=32
-export STATIC_ncpn=32
+export STATIC_ncpus=128
+export STATIC_ncpn=128
 export STATIC_nthreads=1
 export STATIC_jobname="Pre.static"
 export STATIC_walltime="02:00:00"
@@ -40,10 +40,10 @@ export DEGRIB_walltime="02:00:00"
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
-export INITATMOS_ncores=64
+export INITATMOS_ncores=128
 export INITATMOS_nnodes=1
-export INITATMOS_ncpus=64
-export INITATMOS_ncpn=64
+export INITATMOS_ncpus=128
+export INITATMOS_ncpn=128
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
@@ -51,28 +51,8 @@ export INITATMOS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
-#export MODEL_ncores=8192
-#export MODEL_nnodes=32
-#export MODEL_ncpus=256
-#export MODEL_ncpn=256
-#export MODEL_nthreads=1
-#export MODEL_ncores=7680
-#export MODEL_nnodes=30
-#export MODEL_ncpus=256
-#export MODEL_ncpn=256
-#export MODEL_nthreads=1
-#export MODEL_ncores=1024
-#export MODEL_nnodes=16
-#export MODEL_ncpus=256
-#export MODEL_ncpn=64
-#export MODEL_nthreads=4
-#export MODEL_ncores=4096
-#export MODEL_nnodes=20
-#export MODEL_ncpus=256
-#export MODEL_ncpn=256
-#export MODEL_nthreads=1
-export MODEL_ncores=6144
-export MODEL_nnodes=24
+export MODEL_ncores=8192
+export MODEL_nnodes=32
 export MODEL_ncpus=256
 export MODEL_ncpn=256
 export MODEL_nthreads=1
@@ -108,5 +88,36 @@ export PIO=
 export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib:$LD_LIBRARY_PATH
 
 
+#
+# -------- Tested Configurations ---------
+#
 
+#export MODEL_ncores=8192
+#export MODEL_nnodes=32
+#export MODEL_ncpus=256
+#export MODEL_ncpn=256
+#export MODEL_nthreads=1
 
+#export MODEL_ncores=7680
+#export MODEL_nnodes=30
+#export MODEL_ncpus=256
+#export MODEL_ncpn=256
+#export MODEL_nthreads=1
+
+#export MODEL_ncores=1024
+#export MODEL_nnodes=16
+#export MODEL_ncpus=256
+#export MODEL_ncpn=64
+#export MODEL_nthreads=4
+
+#export MODEL_ncores=4096
+#export MODEL_nnodes=20
+#export MODEL_ncpus=256
+#export MODEL_ncpn=256
+#export MODEL_nthreads=1
+
+#export MODEL_ncores=6144
+#export MODEL_nnodes=24
+#export MODEL_ncpus=256
+#export MODEL_ncpn=256
+#export MODEL_nthreads=1

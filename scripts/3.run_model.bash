@@ -200,29 +200,31 @@ cd ${DIRRUN}
 date
 beg_secs=\`date +"%s"\`
 
-time mpirun --ppn ${MODEL_ncpn} -np ${MODEL_ncores} --depth=${MODEL_nthreads} --cpu-bind depth ./\${executable}
+if [ "$HOSTNAME" = "egeon" ]; then
+   time mpirun -np ${MODEL_ncores} ./\${executable}
+else
+   time mpirun --ppn ${MODEL_ncpn} -np ${MODEL_ncores} --depth=${MODEL_nthreads} --cpu-bind depth ./\${executable}
+fi
 
+date
 end_secs=\`date +"%s"\`
+
 let wallsecs=\$end_secs-\$beg_secs
 echo "MONAN time taken by run in seconds is " \$wallsecs
-date
 
 #
 # move dataout, clean up and remove files/links
 #
 mv MONAN_DIAG_* ${DATAOUT}/${YYYYMMDDHHi}/Model
-mv MONAN_HIST_* ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model
 cp -f ${EXECS}/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
 cp -f ${DIRHOMES}/VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/SCRIPTSCDCT-VERSION.txt
 cp -f ${MONANDIR}/README.md ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/
-mv log.atmosphere.*.out ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
-mv log.atmosphere.*.err ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
+mv log.atmosphere.* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv namelist.atmosphere ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 mv stream* ${DATAOUT}/${YYYYMMDDHHi}/Model/logs
 EOF0
 chmod a+x ${DIRRUN}/model.bash
-
 
 
 case "${SCHEDULER_SYSTEM}" in

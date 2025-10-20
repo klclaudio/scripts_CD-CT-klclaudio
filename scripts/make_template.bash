@@ -116,12 +116,10 @@ fi
 # NLEVS get from t_iso_levels in Registry_isobaric.xml:
 if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
 then
-####   chmod 755 ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml
    NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
 else
    NLEV=18
 fi
-echo "checar na ian: nlev=$NLEV"
 
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)

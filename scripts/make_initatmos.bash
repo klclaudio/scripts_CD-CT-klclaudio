@@ -139,11 +139,21 @@ ulimit -s unlimited
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
 
-echo ""
+
 date
-#time mpiexec -np ${INITATMOS_ncores} ./\${executable} 
-time mpirun -np ${INITATMOS_ncores} ./\${executable} 
+beg_secs=\`date +"%s"\`
+
+if [ "$HOSTNAME" = "egeon" ]; then
+   time mpirun -np ${INITATMOS_ncores} ./\${executable}
+else
+   time mpirun --ppn ${INITATMOS_ncpn} -np ${INITATMOS_ncores} --depth=${INITATMOS_nthreads} --cpu-bind depth ./\${executable}
+fi
+
 date
+end_secs=\`date +"%s"\`
+
+let wallsecs=\$end_secs-\$beg_secs
+echo "INITATMOS time taken by run in seconds is " \$wallsecs
 
 
 mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out

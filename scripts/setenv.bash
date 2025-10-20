@@ -43,26 +43,23 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # Set environment variables and importants directories-------------------------------------------------- 
 
+
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(pwd) 
+export DIR_SCRIPTS=$(pwd)
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$(pwd) 
-
-
-echo "dir dados = "${DIR_DADOS}
-echo ""
-echo "dir scripts = "${DIR_SCRIPTS}
+export MONANDIR=$(pwd)
 
 
 # Load your system setenv:
-
 . ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
 
+
 #module list
-echo ""
+#echo ""
 #read -p "Mostrando modulos carregados - Pressione Enter para continuar.... "
-echo ""
+#echo ""
+
 
 #-----------------------------------------------------------------------
 # We discourage changing the variables below:
@@ -101,9 +98,5 @@ how_many_nodes () {
    echo ""
 }
 #----------------------------------------------------------------------------------------------
-
-
-
-
 
 

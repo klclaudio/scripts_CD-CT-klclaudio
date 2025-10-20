@@ -79,7 +79,7 @@ case "${SYSTEM_KEY}" in
      #     to find the gfs file:
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
       ;;
     PBS_ian)
       #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
@@ -87,6 +87,7 @@ case "${SYSTEM_KEY}" in
       echo "Rodando em PBS"
       OPERDIREXP=${OPERDIR}/${EXP}
       BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
+      #GCCCIS=/p/monan/CIs/${EXP}
       GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
       if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
           echo "rsync OK!"
@@ -106,26 +107,8 @@ esac
 
 
 
-#CR: maybe this if should belong to the SLURM kind of running...
-#if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-#then
-#   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
-#   then
-#      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-#      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
-#      echo -e "${RED}==>${NC}Check ${GCCCIS}"
-#      exit 1            
-#   else
-#      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-#   fi    
-#fi
 
 #Fazendo download da condicao de contorno
-
-echo "hostname=$HOSTNAME"
-echo "operdirexp=$OPERDIREXP"
-echo "bnddir=$BNDDIR"
-echo "gcccis=$GCCCIS"
 
 if [ "$HOSTNAME" = "egeon" ]; then
     if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
@@ -148,7 +131,6 @@ else
         fi
     fi
 fi
-
 if [ ! -s "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]; then
     echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
     echo -e "${RED}==>${NC}Check ${BNDDIR} or."
@@ -157,13 +139,30 @@ if [ ! -s "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib
 fi
 
 
+## Se nao existir CI no diretorio do IO, 
+## busca no nosso dir /beegfs/monan/CIs (Egeon) , /p/monan/CIs (xd2000) se nao existir tbm, aborta!
+#CR: maybe this if should belong to the SLURM kind of running...
+#if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+#then
+#   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+#   then
+#      echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
+#      echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
+#      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+#      exit 1            
+#   else
+#      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+#   fi    
+#fi
+
+echo "hostname=$HOSTNAME"
+echo "operdirexp=$OPERDIREXP"
+echo "bnddir=$BNDDIR"
+echo "gcccis=$GCCCIS"
+
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 
-
-
 #files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
-
-
 
 for file in "${files_needed[@]}"
 do
@@ -179,9 +178,11 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
 #cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
 #cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
-cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
+
+
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
