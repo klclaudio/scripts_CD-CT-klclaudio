@@ -191,8 +191,10 @@ if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
    sed -e "s,#JOBNAME#,${DEGRIB_jobname},g;
    s,#NNODES#,${DEGRIB_nnodes},g;
+   s,#NCPUS#,${DEGRIB_ncpus},g;
    s,#NTASKS#,${DEGRIB_ncores},g;
    s,#NTASKSPNODE#,${DEGRIB_ncpn},g;
+   s,#NTHREADS#,${DEGRIB_nthreads},g;
    s,#PARTITION#,${DEGRIB_QUEUE},g;
    s,#WALLTIME#,${DEGRIB_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o,g;
@@ -272,7 +274,7 @@ case "${SCHEDULER_SYSTEM}" in
         ;;
    PBS)
       echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} Sbatch degrib.bash...\n"
+      echo -e  "${GREEN}==>${NC} qsub degrib.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/degrib.bash
        ;;

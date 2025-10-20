@@ -115,8 +115,10 @@ if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
    sed -e "s,#JOBNAME#,${STATIC_jobname},g;
    s,#NNODES#,${STATIC_nnodes},g;
+   s,#NCPUS#,${STATIC_ncpus},g;
    s,#NTASKS#,${STATIC_ncores},g;
    s,#NTASKSPNODE#,${STATIC_ncpn},g;
+   s,#NTHREADS#,${STATIC_nthreads},g;
    s,#PARTITION#,${STATIC_QUEUE},g;
    s,#WALLTIME#,${STATIC_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/logs/static.bash.o,g;

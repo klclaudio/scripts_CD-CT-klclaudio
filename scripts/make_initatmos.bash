@@ -114,8 +114,10 @@ if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
    sed -e "s,#JOBNAME#,${INITATMOS_jobname},g;
    s,#NNODES#,${INITATMOS_nnodes},g;
+   s,#NCPUS#,${INITATMOS_ncpus},g;
    s,#NTASKS#,${INITATMOS_ncores},g;
    s,#NTASKSPNODE#,${INITATMOS_ncpn},g;
+   s,#NTHREADS#,${INITATMOS_nthreads},g;
    s,#PARTITION#,${INITATMOS_QUEUE},g;
    s,#WALLTIME#,${INITATMOS_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o,g;
@@ -160,7 +162,7 @@ case "${SCHEDULER_SYSTEM}" in
       ;;
     PBS)
       echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      echo -e  "${GREEN}==>${NC} qsub initatmos.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/initatmos.bash
       ;;

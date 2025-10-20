@@ -165,7 +165,6 @@ cp -f ${SCRIPTS}/namelists/stream_list.atmosphere.surface ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 
 
-
 chmod 755 ${DIRRUN}
 
 rm -f ${DIRRUN}/model.bash 
@@ -174,8 +173,10 @@ if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
 then
    sed -e "s,#JOBNAME#,${MODEL_jobname},g;
    s,#NNODES#,${MODEL_nnodes},g;
+   s,#NCPUS#,${MODEL_ncpus},g;
    s,#NTASKS#,${MODEL_ncores},g;
    s,#NTASKSPNODE#,${MODEL_ncpn},g;
+   s,#NTHREADS#,${MODEL_nthreads},g;
    s,#PARTITION#,${MODEL_QUEUE},g;
    s,#WALLTIME#,${MODEL_walltime},g;
    s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Model/logs/model.bash.o,g;
@@ -187,7 +188,6 @@ fi
 
 cat << EOF0 >> ${DIRRUN}/model.bash 
 
-
 export executable=atmosphere_model
 
 ulimit -c unlimited
@@ -197,9 +197,14 @@ ulimit -s unlimited
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
 
-
 date
-time mpirun -np ${MODEL_ncores} ./\${executable}
+beg_secs=\`date +"%s"\`
+
+time mpirun --ppn ${MODEL_ncpn} -np ${MODEL_ncores} --depth=${MODEL_nthreads} --cpu-bind depth ./\${executable}
+
+end_secs=\`date +"%s"\`
+let wallsecs=\$end_secs-\$beg_secs
+echo "MONAN time taken by run in seconds is " \$wallsecs
 date
 
 #
@@ -219,6 +224,7 @@ EOF0
 chmod a+x ${DIRRUN}/model.bash
 
 
+
 case "${SCHEDULER_SYSTEM}" in
    SLURM)
       echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
@@ -229,7 +235,7 @@ case "${SCHEDULER_SYSTEM}" in
         ;;
     PBS)
       echo "Rodando em PBS"
-      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      echo -e  "${GREEN}==>${NC} qsub model.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/model.bash
       ;;
