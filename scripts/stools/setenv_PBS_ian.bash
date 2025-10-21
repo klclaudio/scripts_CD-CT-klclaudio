@@ -7,7 +7,7 @@ module load craype-x86-turin
 module load cray-hdf5/1.14.3.3
 module load cray-netcdf/4.9.0.15
 module load cray-parallel-netcdf/1.12.3.15
-#module load grads/2.2.1
+module load grads/2.2.1
 module load cdo/2.4.2
 module load METIS/5.1.0
 module load cray-pals

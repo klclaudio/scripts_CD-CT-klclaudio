@@ -160,7 +160,7 @@ do
 done
 
 cd ${DIRRUN}
-chmod 755 ${DIRRUN}/*
+chmod -R 755 ${DIRRUN}/*
 
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 echo "scheduler system = " ${SCHEDULER_SYSTEM} 
@@ -263,8 +263,7 @@ EOSH
          echo "Rodando em PBS"
          echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
          cd ${DIRRUN}
-	 echo "executando qsub pegando jobid"
-	 jobid[${node}]=$(qsub -W block=true  ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+	 		jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
           ;;
 #      GENERIC)
 #         echo "Nenhum gerenciador detectado"
@@ -279,7 +278,6 @@ EOSH
    node=$((node+1))
    sleep 5
 done
-
 
 
 
@@ -330,13 +328,12 @@ cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/logs/* ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Model/MONAN-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
-####cd ${DIRRUN}/..
-####rm -fr ${DIRRUN}
+cd ${DIRRUN}/..
+rm -fr ${DIRRUN}
 
 
 EOSH
 chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
-
 
 
 case "${SCHEDULER_SYSTEM}" in
@@ -348,15 +345,14 @@ case "${SCHEDULER_SYSTEM}" in
       echo "Rodando em PBS"
       echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
       cd ${DIRRUN}
-      echo "submetendo de novo"
-      jobid[${node}]=$(qsub -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
-
-     ;;
+      qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh
+      ;;
 #   GENERIC)
 #      echo "Nenhum gerenciador detectado"
 #      ${DIRRUN}/PostAtmos_node.${node}.sh
 #      ;;
 esac
+
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}

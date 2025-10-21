@@ -46,9 +46,9 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=$(pwd)
+export DIR_SCRIPTS=/lustre/projetos/monan_adm/carlos.souza/scripts_CD-CT/scripts
 export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=$(pwd)
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
 # Load your system setenv:
