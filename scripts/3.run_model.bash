@@ -100,6 +100,9 @@ elif [ $RES -eq 5898242 ]; then  #10Km
    CONFIG_DT=60.0
    CONFIG_LEN_DISP=10000.0
    CONFIG_CONV_INTERVAL="00:15:00"
+elif [ $RES -eq 65536002 ]; then  #3Km
+   CONFIG_DT=18.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 fi
 #-------------------------------------------------------
 

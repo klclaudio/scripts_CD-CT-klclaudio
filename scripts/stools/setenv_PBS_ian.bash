@@ -19,9 +19,9 @@ module list
 # PRE-Static phase:
 export STATIC_QUEUE="pesqextra"
 export STATIC_ncores=128
-export STATIC_nnodes=1
-export STATIC_ncpus=128
-export STATIC_ncpn=128
+export STATIC_nnodes=4
+export STATIC_ncpus=32
+export STATIC_ncpn=32
 export STATIC_nthreads=1
 export STATIC_jobname="Pre.static"
 export STATIC_walltime="02:00:00"
@@ -40,8 +40,8 @@ export DEGRIB_walltime="02:00:00"
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
-export INITATMOS_ncores=128
-export INITATMOS_nnodes=1
+export INITATMOS_ncores=512
+export INITATMOS_nnodes=4
 export INITATMOS_ncpus=128
 export INITATMOS_ncpn=128
 export INITATMOS_nthreads=1
