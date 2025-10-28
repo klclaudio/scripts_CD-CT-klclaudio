@@ -74,7 +74,7 @@ echo "---- Installing the Model ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
@@ -97,11 +97,11 @@ echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 
 
 # Local variables:-----------------------------------------------------
-DIR_SCRIPTS=${SCRIPTS}
 MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 
-$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$DIR_SCRIPTS;" setenv.bash)
+$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
+$(sed -i "s;DIR_DADOS=.*$;DIR_DADOS=$(dirname $(dirname $(pwd)));" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
 
 
@@ -209,8 +209,8 @@ rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere
 rm -fr $MONANDIR/src/core_atmosphere/inc $MONANDIR/src/core_init_atmosphere/inc
 DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 
-export NETCDF=${NETCDFDIR}
-export PNETCDF=${PNETCDFDIR}
+export NETCDF=\${NETCDFDIR}
+export PNETCDF=\${PNETCDFDIR}
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
 export PIO=
 

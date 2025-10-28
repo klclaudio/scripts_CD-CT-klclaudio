@@ -1,6 +1,10 @@
 #!/bin/bash
 
-
+# Choose your compiler here:
+export COMPILER=intel
+#export COMPILER=gnu
+#export COMPILER=cray
+#export COMPILER=nvidia
 
 # Squeduler detect:
 if command -v sbatch &> /dev/null
@@ -32,13 +36,12 @@ case ${THOSTNAME} in
       export MAKE_TARG2=intel2-xd2000
       ;;
 esac
-
-
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
 
 # Set unique key: scheduler + host:
 export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
+export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 
 
 # Set environment variables and importants directories-------------------------------------------------- 
@@ -46,13 +49,13 @@ export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=/lustre/projetos/monan_adm/carlos.souza/scripts_CD-CT/scripts
-export DIR_DADOS=$(dirname $(dirname $(pwd)))
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+export DIR_SCRIPTS=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian
+export DIR_DADOS=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian
+export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
 # Load your system setenv:
-. ${DIR_SCRIPTS}/stools/setenv_${SYSTEM_KEY}.bash
+. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
 
 
 #module list

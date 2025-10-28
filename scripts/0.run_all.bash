@@ -27,7 +27,7 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -45,8 +45,7 @@ convertmpas_branch=1.2.0
 EXP=GFS
 RES=1024002
 YYYYMMDDHHi=2025101900
-#FCST=24
-FCST=12
+FCST=24
 #----------------------------------------------------------------------
 
 
@@ -55,8 +54,8 @@ FCST=12
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-#exit
+time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+exit
 
 # STEP 3: Executing the Model run:
 #time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 

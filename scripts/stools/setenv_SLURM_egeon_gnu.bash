@@ -1,9 +1,17 @@
-#!/bin/bash 
-
+#!/bin/bash
 
 # Load modules:
 
-
+module purge
+module load ohpc
+module load phdf5
+module load netcdf 
+module load netcdf-fortran 
+module load cdo-2.0.4-gcc-9.4.0-bjulvnd
+module load opengrads/2.2.1
+module load nco-5.0.1-gcc-11.2.0-u37c3hb
+module load metis
+module list
 
 
 # Submiting variables:
@@ -22,15 +30,15 @@ export DEGRIB_ncores=1
 export DEGRIB_nnodes=1
 export DEGRIB_ncpn=1
 export DEGRIB_jobname="Pre.degrib"
-### export DEGRIB_walltime="00:30:00" not used yet - using STATIC_walltime
+export DEGRIB_walltime="02:00:00" 
 
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="batch"
 export INITATMOS_ncores=64
 export INITATMOS_nnodes=1
-### export INITATMOS_ncpn=1 not used yet  - using INITATMOS_ncores 
+export INITATMOS_ncpn=64
 export INITATMOS_jobname="Pre.InitAtmos"
-### export INITATMOS_walltime="01:00:00" not used yet - using STATIC_walltime
+export INITATMOS_walltime="02:00:00" 
 
 
 # Model phase:
@@ -50,3 +58,16 @@ export POST_nnodes=1
 export POST_ncpn=32
 export POST_jobname="Post.MONAN"
 export POST_walltime="8:00:00"
+
+
+
+
+
+# Libraries paths:
+export NETCDF=/mnt/beegfs/monan/libs_openmpi/netcdf
+export PNETCDF=/mnt/beegfs/monan/libs_openmpi/PnetCDF
+export NETCDFDIR=${NETCDF}
+export PNETCDFDIR=${PNETCDF}
+export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
+export OPERDIR=/oper/dados/ioper/tempo
+export GCCCIS=/mnt/beegfs/monan/CIs

@@ -31,7 +31,7 @@ echo "---- Make Static ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -93,10 +93,8 @@ done
 cp -f ${DATAIN}/fixed/*.TBL ${DIRRUN}
 cp -f ${DATAIN}/fixed/*.GFS ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-
 cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.grid.nc ${DIRRUN}
-
 
 sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/namelist.init_atmosphere.STATIC \
@@ -105,7 +103,6 @@ sed -e "s,#GEODAT#,${GEODATA},g;s,#RES#,${RES},g" \
 sed -e "s,#RES#,${RES},g" \
    ${SCRIPTS}/namelists/streams.init_atmosphere.STATIC \
    > ${DIRRUN}/streams.init_atmosphere
-
 
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 mkdir -p ${DATAOUT}/logs
@@ -213,6 +210,6 @@ else
    echo -e  "${RED}==>${NC} File ${DIRRUN}/x1.${RES}.static.nc was not created. \n"
    exit -1
 fi
-exit
+
 rm -fr ${DIRRUN}
 

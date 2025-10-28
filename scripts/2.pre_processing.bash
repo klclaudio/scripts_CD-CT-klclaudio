@@ -52,7 +52,7 @@ echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}    
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}    
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -85,11 +85,14 @@ echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
 git log | head -1
 
 
-echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEY}... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+if [ ! -d ${DATAIN}/fixed ]
+then
+	echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
+	mkdir -p ${DATAIN}
+	rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+	rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+	ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+fi
 
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
@@ -103,11 +106,11 @@ fi
 #----------------------------------------------------------------------------------
 
 
-
 # Degrib phase:---------------------------------------------------------------------
 echo -e  "${GREEN}==>${NC} Running Degrib:\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
+
 
 
 

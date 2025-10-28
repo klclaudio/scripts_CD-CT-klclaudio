@@ -32,7 +32,7 @@ echo "---- Make Degrib ----"
 echo ""
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");           mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;    mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;            mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;              mkdir -p ${DATAIN}
@@ -70,73 +70,8 @@ fi
 #CR: BNDDIR should be setted just for EGEON machine
 #CR: some local variables were mobed into the SLURM section, particularly for egeon
 
-echo "system_key=$SYSTEM_KEY"
-echo "operdir=$OPERDIR"
-
-case "${SYSTEM_KEY}" in
-   SLURM_egeon)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-      OPERDIREXP=${OPERDIR}/${EXP}
-      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-      GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
-      ;;
-    PBS_ian)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-      echo "Rodando em PBS"
-      OPERDIREXP=${OPERDIR}/${EXP}
-      BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-      GCCCIS=/p/monan/CIs/${EXP}
-      #GCCCIS=/p/monan/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
-      #if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
-      #    echo "rsync OK!"
-      #else
-      #   echo "rsync error!"
-      #   echo "Paths: ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2  =>  ${DATAIN}/${YYYYMMDDHHi}"
-      #   exit 1
-      #fi
-      ;;
-    GENERIC)
-      #CR: Here is the place to setup the CI directory into ${BNDDIR} var, 
-      #     to find the gfs file:
-      echo "Nenhum gerenciador detectado"
-      # BNDDIR=
-      ;;
-esac
-
-
-
-
-#Fazendo download da condicao de contorno
-
-#if [ "$HOSTNAME" = "egeon" ]; then
-#    if rsync -rv --chmod=ugo=rw ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}; then
-#        echo "rsync OK!"
-#    else
-#       echo "rsync error!"
-#       echo "Paths: ${GCCCIS}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2  =>  ${DATAIN}/${YYYYMMDDHHi}"
-#       exit 1
-#    fi
-#else
-#    if [ ! -e "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]; then
-#	    
-#        if wget "http://dataserver.cptec.inpe.br/dataserver_dimnt/monan/MONAN-Model/monan_datain/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" \
-#	        -O "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2"; then
-#            echo "wget OK!"
-#        else
-#            echo "wget error!"
-#	    echo "Link: http://dataserver.cptec.inpe.br/dataserver_dimnt/monan/MONAN-Model/monan_datain/CIs/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2"
-#	    exit 1
-#        fi
-#    fi
-#fi
-#if [ ! -s "${DATAIN}/${YYYYMMDDHHi}/gfs.t00z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2" ]; then
-#    echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
-#    echo -e "${RED}==>${NC}Check ${BNDDIR} or."
-#    echo -e "${RED}==>${NC}Check ${GCCCIS}"
-#    exit 1
-#fi
+OPERDIREXP=${OPERDIR}/${EXP}
+BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
 
 
 # Se nao existir CI no diretorio do IO, 
@@ -144,21 +79,17 @@ esac
 #CR: maybe this if should belong to the SLURM kind of running...
 if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
-   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   if [ ! -s ${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
    then
       echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
       echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
-      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+      echo -e "${RED}==>${NC}Check ${GCCCIS}/${EXP}"
       exit 1            
    else
-      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+      BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
    fi    
 fi
 
-echo "hostname=$HOSTNAME"
-echo "operdirexp=$OPERDIREXP"
-echo "bnddir=$BNDDIR"
-echo "gcccis=$GCCCIS"
 
 #files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
 
@@ -178,12 +109,8 @@ cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
-
 cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-#cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
-#cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
-
-
+cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
@@ -275,7 +202,6 @@ case "${SCHEDULER_SYSTEM}" in
       sbatch --wait ${DIRRUN}/degrib.bash
         ;;
    PBS)
-      echo "Rodando em PBS"
       echo -e  "${GREEN}==>${NC} qsub degrib.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/degrib.bash
