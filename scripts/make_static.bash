@@ -184,7 +184,6 @@ case "${SCHEDULER_SYSTEM}" in
       sbatch --wait ${DIRRUN}/static.bash
       ;;
     PBS)
-      echo "Rodando em PBS"
       echo -e  "${GREEN}==>${NC} qsub static.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/static.bash

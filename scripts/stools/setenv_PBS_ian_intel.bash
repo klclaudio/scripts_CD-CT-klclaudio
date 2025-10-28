@@ -82,8 +82,8 @@ export PNETCDFDIR=${PNETCDF}
 
 
 
-export DIRDADOS=/p/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
+export DIRDADOS=/lustre/projetos/monan_adm/monan/dados/MONAN_v1.4.x
 export GCCCIS=/lustre/projetos/monan_adm/monan/CIs
 
 
