@@ -158,7 +158,7 @@ timectl=$(grep tdef ${DIRRUN}/qctlinfo.ctl | cut -d" " -f4)
 sed -i '3a\options template' ${DIRRUN}/qctlinfo.ctl
 sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qctlinfo.ctl
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
-exit
+
 chmod 755 ${DIRRUN}/*
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

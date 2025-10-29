@@ -47,7 +47,7 @@ echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -239,7 +239,8 @@ case "${SCHEDULER_SYSTEM}" in
       sbatch --wait ${DIRRUN}/model.bash
         ;;
     PBS)
-      echo "Rodando em PBS"
+      echo -e  "${GREEN}==>${NC} Submitting MONAN atmosphere model and waiting for finish before exit... \n"
+      echo -e  "${GREEN}==>${NC} Logs being generated at ${DATAOUT}/logs... \n"
       echo -e  "${GREEN}==>${NC} qsub model.bash...\n"
       cd ${DIRRUN}
       qsub -W block=true ${DIRRUN}/model.bash
