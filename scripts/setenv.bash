@@ -2,7 +2,7 @@
 umask 022
 
 # Choose your compiler here:
-export COMPILER=intel
+#export COMPILER=intel
 #export COMPILER=gnu
 #export COMPILER=cray
 #export COMPILER=nvidia
@@ -30,15 +30,18 @@ case ${THOSTNAME} in
       export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
       export MAKE_TARG2=gfortran
+      export COMPILER=gnu
       ;;
    ian[0-9]*|cn-0[0-9][0-9][0-9])
       export HOSTNAME="ian"
       export MAKE_TARG=intel-xd2000
       export MAKE_TARG2=intel2-xd2000
+      export COMPILER=intel
       ;;
 esac
 # Make the same for other machines/systems...
 echo "Host detected: $HOSTNAME"
+echo "Compiler to be used: ${COMPILER}"
 
 # Set unique key: scheduler + host:
 export SYSTEM_KEY="${SCHEDULER_SYSTEM}_${HOSTNAME}"
@@ -52,7 +55,7 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+export MONANDIR=/mnt/beegfs/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
 # Load your system setenv:
