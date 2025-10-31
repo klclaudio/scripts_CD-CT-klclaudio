@@ -1,4 +1,5 @@
 #!/bin/bash
+umask 022
 
 # Choose your compiler here:
 export COMPILER=intel

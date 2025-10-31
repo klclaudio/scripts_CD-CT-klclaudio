@@ -1,4 +1,5 @@
 #!/bin/bash
+umask 022
 
 ####PBS -l select=<N_nos>:ncpus=<CPUs_por_no>:mpiprocs=<MPI_por_no>:ompthreads=<OMP_por_no>
 

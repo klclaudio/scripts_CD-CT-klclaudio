@@ -1,4 +1,5 @@
 #!/bin/bash
+umask 022
 
 #SBATCH --job-name=#JOBNAME#
 #SBATCH --nodes=#NNODES#
