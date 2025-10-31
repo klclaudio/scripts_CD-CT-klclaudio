@@ -49,8 +49,8 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 
 # MONAN-suite install root directories:
 # Put your directories:
-export DIR_SCRIPTS=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian
-export DIR_DADOS=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian
+export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
+export DIR_DADOS=${DIR_SCRIPTS}
 export MONANDIR=/lustre/projetos/monan_adm/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
