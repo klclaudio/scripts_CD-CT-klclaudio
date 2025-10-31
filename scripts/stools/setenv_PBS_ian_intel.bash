@@ -1,5 +1,4 @@
 #!/bin/bash
-umask 022
 
 # Load modules:
 module purge
