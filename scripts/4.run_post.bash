@@ -241,9 +241,9 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${N_MODEL_LEV}.nc
-   
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
+
    cd ${DIRRUN}/dir.\${i}
    chmod 755 *
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 

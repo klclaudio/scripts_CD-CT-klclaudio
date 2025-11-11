@@ -101,7 +101,7 @@ echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
 
-$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
+#$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
 #$(sed -i "s;DIR_DADOS=.*$;DIR_DADOS=$(dirname $(dirname $(pwd)));" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
 chmod 755 ${SCRIPTS}/setenv.bash
@@ -199,9 +199,9 @@ cat << EOF > make-all.sh
 #    PRECISION=single - builds with default single-precision real kind. Default is to use double-precision.
 #    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
 
-
+cd ${SCRIPTS}
 . ${SCRIPTS}/setenv.bash
-
+cd $MONANDIR
 
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
