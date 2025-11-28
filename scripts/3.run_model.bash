@@ -205,6 +205,8 @@ ulimit -s unlimited
 cd ${DIRRUN}
 . ${SCRIPTS}/setenv.bash
 
+export FI_CXI_RX_MATCH_MODE=hybrid
+
 date
 beg_secs=\`date +"%s"\`
 

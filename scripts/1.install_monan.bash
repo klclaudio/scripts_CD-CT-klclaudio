@@ -212,7 +212,7 @@ DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 export NETCDF=\${NETCDFDIR}
 export PNETCDF=\${PNETCDFDIR}
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
-export PIO=
+export PIO=\${PIODIR}
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 
@@ -258,7 +258,7 @@ echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model
 echo ""
 . ${MONANDIR}/make-all.sh
 
-
+export PATH=$NETCDF/bin:$PATH
 
 # install convert_mpas
 echo ""

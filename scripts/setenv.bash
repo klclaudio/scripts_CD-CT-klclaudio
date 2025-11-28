@@ -32,11 +32,16 @@ case ${THOSTNAME} in
       export MAKE_TARG2=gfortran
       export COMPILER=gnu
       ;;
+#   ian[0-9]*|cn-0[0-9][0-9][0-9])
+#      export HOSTNAME="ian"
+#      export MAKE_TARG=intel-xd2000
+#      export MAKE_TARG2=intel2-xd2000
+#      export COMPILER=intel
    ian[0-9]*|cn-0[0-9][0-9][0-9])
       export HOSTNAME="ian"
-      export MAKE_TARG=intel-xd2000
-      export MAKE_TARG2=intel2-xd2000
-      export COMPILER=intel
+      export MAKE_TARG=gfortran-xd2000
+      export MAKE_TARG2=gfortran-xd2000
+      export COMPILER=gnu
       ;;
 esac
 # Make the same for other machines/systems...
@@ -55,12 +60,12 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+export MONANDIR=/lustre/projetos/monan_adm/eduardo.khamis/issues/854/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
 
 
 # Load your system setenv:
-. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
-
+#. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
+. /lustre/projetos/monan_adm/eduardo.khamis/issues/854/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
 
 #module list
 #echo ""
