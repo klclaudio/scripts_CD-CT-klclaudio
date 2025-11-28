@@ -261,7 +261,10 @@ echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model
 echo ""
 . ${MONANDIR}/make-all.sh
 
-export PATH=$NETCDF/bin:$PATH
+if [ "$HOSTNAME" == "ian" ]; then
+#   echo "hostname=$HOSTNAME"
+   export PATH=$NETCDF/bin:$PATH
+fi
 
 # install convert_mpas
 echo ""
