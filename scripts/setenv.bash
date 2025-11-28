@@ -64,8 +64,7 @@ export MONANDIR=/lustre/projetos/monan_adm/eduardo.khamis/issues/854/scripts_CD-
 
 
 # Load your system setenv:
-#. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
-. /lustre/projetos/monan_adm/eduardo.khamis/issues/854/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
+. ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
 
 #module list
 #echo ""
