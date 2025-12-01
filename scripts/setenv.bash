@@ -3,7 +3,7 @@ umask 022
 
 # Choose your compiler here:
 #export COMPILER=intel
-#export COMPILER=gnu
+export COMPILER=gnu
 #export COMPILER=cray
 #export COMPILER=nvidia
 
@@ -30,18 +30,16 @@ case ${THOSTNAME} in
       export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
       export MAKE_TARG2=gfortran
-      export COMPILER=gnu
       ;;
-#   ian[0-9]*|cn-0[0-9][0-9][0-9])
-#      export HOSTNAME="ian"
-#      export MAKE_TARG=intel-xd2000
-#      export MAKE_TARG2=intel2-xd2000
-#      export COMPILER=intel
    ian[0-9]*|cn-0[0-9][0-9][0-9])
       export HOSTNAME="ian"
-      export MAKE_TARG=gfortran-xd2000
-      export MAKE_TARG2=gfortran-xd2000
-      export COMPILER=gnu
+      if [ "$COMPILER" == "intel" ]; then
+         export MAKE_TARG=intel-xd2000
+         export MAKE_TARG2=intel2-xd2000
+      elif [ "$COMPILER" == "gnu" ]; then
+         export MAKE_TARG=gfortran-xd2000
+         export MAKE_TARG2=gfortran-xd2000
+      fi
       ;;
 esac
 # Make the same for other machines/systems...
