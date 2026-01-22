@@ -1,0 +1,13 @@
+#!/bin/bash
+
+####PBS -l select=<N_nos>:ncpus=<CPUs_por_no>:mpiprocs=<MPI_por_no>:ompthreads=<OMP_por_no>
+
+#PBS -N #JOBNAME#
+#PBS -q #PARTITION#
+#PBS -l select=#NNODES#:ncpus=#NCPUS#:mpiprocs=#NTASKSPNODE#:ompthreads=#NTHREADS#
+#PBS -l walltime=#WALLTIME#
+#PBS -o #OUTPUTJOB#
+#PBS -e #ERRORJOB#
+#PBS -l place=scatter:excl
+#PBS -V
+

@@ -1,4 +1,5 @@
 #!/bin/bash 
+umask 022
 
 #-----------------------------------------------------------------------------#
 # !SCRIPT: install_monan
@@ -45,7 +46,7 @@ function checkout_system() {
       echo -e "${RED}==>${NC} Please check if you have this branch. Exiting ..."
       exit -1
   fi
-  git log -1 --name-only
+  git log | head -1
 }
 #-----------------------------------------------------------------------------#
 
@@ -69,6 +70,9 @@ fi
 echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
+echo ""
+echo "---- Installing the Model ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
@@ -84,11 +88,11 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
 tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.3.1-rc"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.4.3-rc"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 
 tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.1.0"}
+tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.2.0"}
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
@@ -96,7 +100,13 @@ echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 # Local variables:-----------------------------------------------------
 MONANDIR=${SOURCES}/MONAN-Model_${tag_or_branch_name_MONAN}
 CONVERT_MPAS_DIR=${SOURCES}/convert_mpas_${tag_or_branch_name_CONVERT_MPAS}
+
+#$(sed -i "s;DIR_SCRIPTS=.*$;DIR_SCRIPTS=$(dirname $(dirname $(pwd)));" setenv.bash)
+#$(sed -i "s;DIR_DADOS=.*$;DIR_DADOS=$(dirname $(dirname $(pwd)));" setenv.bash)
 $(sed -i "s;MONANDIR=.*$;MONANDIR=$MONANDIR;" setenv.bash)
+chmod 755 ${SCRIPTS}/setenv.bash
+. ${SCRIPTS}/setenv.bash
+
 #----------------------------------------------------------------------
 
 #=====================================================================================
@@ -156,7 +166,6 @@ echo ""
 echo -e  "${GREEN}==>${NC} Making compile script...\n"
 
 cd $MONANDIR
-
 cat << EOF > make-all.sh
 #!/bin/bash
 #Usage: make target CORE=[core] [options]
@@ -165,6 +174,7 @@ cat << EOF > make-all.sh
 #    gfortran
 #    xlf
 #    pgi
+#    intel-xd2000 :: cptec/inpe ian xd2000
 #Availabe Cores:
 #    atmosphere
 #    init_atmosphere
@@ -189,22 +199,30 @@ cat << EOF > make-all.sh
 #    PRECISION=single - builds with default single-precision real kind. Default is to use double-precision.
 #    SHAREDLIB=true - generate position-independent code suitable for use in a shared library. Default is false.
 
-
+cd ${SCRIPTS}
 . ${SCRIPTS}/setenv.bash
+cd $MONANDIR
+
 rm -rf $MONANDIR/default_inputs/ $MONANDIR/src/core_atmosphere/physics/physics_wrf/files
 rm -f  $MONANDIR/stream_list.* $MONANDIR/streams.* $MONANDIR/namelist.* 
 rm -f  $MONANDIR/make*.output.atmosphere $MONANDIR/make*.output.init_atmosphere 
 rm -fr $MONANDIR/src/core_atmosphere/inc $MONANDIR/src/core_init_atmosphere/inc
 DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 
-export NETCDF=${NETCDFDIR}
-export PNETCDF=${PNETCDFDIR}
+export NETCDF=\${NETCDFDIR}
+export PNETCDF=\${PNETCDFDIR}
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
+#export PIO=\${PIODIR}
 export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
+
 make clean CORE=atmosphere
-make -j 8 gfortran CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
+#make -j 8 intel-xd2000 CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
+
 
 #CR: TODO: put verify here if executable was created ok
 mv ${MONANDIR}/atmosphere_model ${EXECS}
@@ -214,8 +232,13 @@ cp ${MONANDIR}/GF_ConvPar_nml ${SCRIPTS}
 make clean CORE=atmosphere
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
+
 make clean CORE=init_atmosphere
-make -j 8 gfortran CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+
+#make -j 8 intel-xd2000 CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
+
 
 mv ${MONANDIR}/init_atmosphere_model ${EXECS}
 make clean CORE=init_atmosphere
@@ -236,24 +259,18 @@ chmod a+x make-all.sh
 echo ""
 echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model...\n"
 echo ""
-
 . ${MONANDIR}/make-all.sh
 
+if [ "$HOSTNAME" == "ian" ]; then
+#   echo "hostname=$HOSTNAME"
+   export PATH=$NETCDF/bin:$PATH
+fi
 
 # install convert_mpas
 echo ""
 echo -e  "${GREEN}==>${NC} Moduling environment for convert_mpas...\n"
-module purge
-module load gnu9/9.4.0
-module load ohpc
-module load phdf5
-module load netcdf
-module load netcdf-fortran
-module list
 
 cd ${CONVERT_MPAS_DIR}
-echo ""
-echo -e  "${GREEN}==>${NC} Installing convert_mpas...\n"
 make clean
 make  2>&1 | tee make.convert.output
 

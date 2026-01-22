@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash 
+umask 022
 #-----------------------------------------------------------------------------#
 # !SCRIPT: run_post
 #
@@ -40,10 +41,13 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Run Post ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -62,6 +66,7 @@ FCST=${4};        #FCST=40
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
 
 
+
 # Local variables--------------------------------------
 START_DATE_YYYYMMDD="${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}"
 START_HH="${YYYYMMDDHHi:8:2}"
@@ -69,6 +74,7 @@ maxpostpernode=30    # <------ qtde max de convert_mpas por no!
 VARTABLE=".OPER"
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 N_MODEL_LEV=55
+NLEV=18
 #-------------------------------------------------------
 
 # Variables for flex outpout interval from streams.atmosphere------------------------
@@ -103,6 +109,20 @@ elif [ $RES -eq 40962 ]; then  #120Km
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+elif [ $RES -eq 163842 ]; then  #60Km
+   NLAT=301 #180/0.6
+   NLON=601 #360/0.6
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
+elif [ $RES -eq 655362 ]; then  #30Km
+   NLAT=601 #180/0.3
+   NLON=1201 #360/0.3
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 elif [ $RES -eq 5898242 ]; then  #10Km
    NLAT=1801 #180/0.10 (+1)
    NLON=3601 #360/0.10 (+1)
@@ -110,16 +130,15 @@ elif [ $RES -eq 5898242 ]; then  #10Km
    STARTLON=0.0
    ENDLAT=90.0
    ENDLON=360.0
+elif [ $RES -eq 65536002 ]; then  #3Km
+   NLAT=6001 #180/0.03 
+   NLON=12001 #360/0.03 
+   STARTLAT=-90.0
+   STARTLON=0.0
+   ENDLAT=90.0
+   ENDLON=360.0
 fi
 #-------------------------------------------------------
-
-# NLEVS get from t_iso_levels in Registry_isobaric.xml:
-if [ -s ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml ]
-then
-   NLEV=$(grep "t_iso_levels" ${MONANDIR}/src/core_atmosphere/diagnostics/Registry_isobaric.xml | grep definition | cut -d\" -f4)
-else
-   NLEV=18
-fi
 
 
 files_needed=("${SCRIPTS}/namelists/include_fields.diag${VARTABLE}" "${SCRIPTS}/namelists/convert_mpas.nml" "${SCRIPTS}/namelists/target_domain.TEMPLATE" "${EXECS}/convert_mpas" "${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc")
@@ -132,6 +151,7 @@ do
     exit -1
   fi
 done
+
 
 # Captura quantos arquivos do modelo tiverem para serem pos-processados e
 # quando nos serao necessarios para executar ${maxpostpernode} convert_mpas por no:
@@ -146,7 +166,7 @@ how_many_nodes ${nfiles} ${maxpostpernode}
 
 # Cria os diretorios e arquivos/links para cada saida do convert_mpas:
 cd ${DIRRUN}
-cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+
 for ii in $(seq 1 ${nfiles})
 do
    i=$(printf "%04d" ${ii})
@@ -162,7 +182,12 @@ do
 done
 
 cd ${DIRRUN}
+chmod -R 755 ${DIRRUN}/*
 
+# Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
+echo "scheduler system = " ${SCHEDULER_SYSTEM} 
+echo "system key = " ${SYSTEM_KEY}
+echo ""
 # Laco para criar os arquivos de submissao com os blocos de convertmpas para cada node:
 node=1
 inicio=1   
@@ -170,19 +195,32 @@ fim=$((maxpostpernode <= nfiles ? maxpostpernode : nfiles))
 while [ ${inicio} -le ${nfiles} ]
 do
    rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
-cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash -x
-#SBATCH --job-name=MO.Pos${node}
-#SBATCH --nodes=1
-#SBATCH --partition=${POST_QUEUE}
-#SBATCH --time=${POST_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
-#SBATCH --exclusive
 
-. ${DIRRUN}/setenv.bash
+   if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
+   then
+      sed -e "s,#JOBNAME#,MO.Pos${node},g;
+      s,#NNODES#,${POST_nnodes},g;
+      s,#NCPUS#,${POST_ncpus},g;
+      s,#NTASKS#,${POST_ncores},g;
+      s,#NTASKSPNODE#,${POST_ncpn},g;
+      s,#NTHREADS#,${POST_nthreads},g;
+      s,#PARTITION#,${POST_QUEUE},g;
+      s,#WALLTIME#,${POST_walltime},g;
+      s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+      s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
+      ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
+      ${DIRRUN}/PostAtmos_node.${node}.sh
+   else
+      echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
+   fi
+   
+cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
 
-echo "Submiting posts ${inicio} to ${fim} in node Node ${node}."
+cd ${DIRRUN}
+. ${SCRIPTS}/setenv.bash
+chmod 755 ${DIRRUN}/*
+
+echo "Executing posts ${inicio} to ${fim} in node Node ${node}."
 
 for ii in \$(seq  ${inicio} ${fim})
 do
@@ -199,11 +237,13 @@ do
    i=\$(printf "%04d" \${ii})
    echo "Executing post \${i}"
    cd ${DIRRUN}/dir.\${i}
-   
+   chmod 755 *
    hh=${YYYYMMDDHHi:8:2}
    currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
    diag_name=MONAN_DIAG_G_MOD_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
-
+   echo ""
+   echo "executando convert mpas"
+   chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Model/*
    time  ./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name}  > convert_mpas.output & 
    echo "./convert_mpas x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Model/\${diag_name} > convert_mpas.output"
 done
@@ -215,31 +255,51 @@ for ii in \$(seq  ${inicio} ${fim})
 do
    i=\$(printf "%04d" \${ii})
    hh=${YYYYMMDDHHi:8:2}
-   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00 \$(echo "(\${i}-1)*3" | bc) hours" +"%Y%m%d%H")
-   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.00.00.x${RES}L${NLEV}.nc
-   
+   currentdate=\$(date -d "${YYYYMMDDHHi:0:8} \${hh}:00:00 \$(echo "(\${i}-1)*${t_strout:0:2}" | bc) hours \$(echo "(\${i}-1)*${t_strout:3:2}" | bc) minutes \$(echo "(\${i}-1)*${t_strout:6:2}" | bc) seconds" +"%Y%m%d%H.%M.%S")
+   diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_\${currentdate}.x${RES}L${N_MODEL_LEV}.nc
+
    cd ${DIRRUN}/dir.\${i}
+   chmod 755 *
    cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post} >> convert_mpas.output & 
    echo "cp latlon.nc  ${DATAOUT}/${YYYYMMDDHHi}/Post/\${diag_name_post}"  >> convert_mpas.output
    
 done
  
 wait
- 
-EOSH
 
-   chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
-   cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
-   jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
-   echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+EOSH
+   
   
+   chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
+   chmod 755 ${DIRRUN}/*
+   cp -f ${DIRRUN}/PostAtmos_node.${node}.sh ${DATAOUT}/${YYYYMMDDHHi}/Post/logs
+   chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
+   case "${SCHEDULER_SYSTEM}" in
+      SLURM)
+         echo "Sbatch PostAtmos_node.${node}.sh"
+         jobid[${node}]=$(sbatch --parsable ${DIRRUN}/PostAtmos_node.${node}.sh)
+         echo "JobId node ${node} = ${jobid[${node}]} , convert_mpas ${inicio} to ${fim}"
+         echo ""
+         ;;
+       PBS)
+         echo "Rodando em PBS"
+         echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+         cd ${DIRRUN}
+	 		jobid[${node}]=$(qsub ${DIRRUN}/PostAtmos_node.${node}.sh | cut -d '.' -f1)
+          ;;
+#      GENERIC)
+#         echo "Nenhum gerenciador detectado"
+#         ${DIRRUN}/PostAtmos_node.${node}.sh
+#         ;;
+   esac
+  
+
    inicio=$((fim + 1))
    temp=$((fim + maxpostpernode))
    fim=$(( temp < nfiles ? temp : nfiles ))
    node=$((node+1))
    sleep 5
 done
-
 
 
 
@@ -254,17 +314,29 @@ done
 # Script final , para conferir todos os arquivos, criar o template final  e apagar o diretorio DIRRUN
 node=0
 rm -f ${DIRRUN}/PostAtmos_node.${node}.sh
-cat > ${DIRRUN}/PostAtmos_node.${node}.sh <<EOSH
-#!/bin/bash
-#SBATCH --job-name=MO.Pos${node}
-#SBATCH --nodes=1
-#SBATCH --partition=${POST_QUEUE}
-#SBATCH --time=${POST_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e%j     # File name for standard error output
 
-. ${DIRRUN}/setenv.bash
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]   
+then
+   sed -e "s,#JOBNAME#,MO.Pos${node},g;
+   s,#NNODES#,${POST_nnodes},g;
+   s,#NCPUS#,${POST_ncpus},g;
+   s,#NTASKS#,${POST_ncores},g;
+   s,#NTASKSPNODE#,${POST_ncpn},g;
+   s,#NTHREADS#,${POST_nthreads},g;
+   s,#PARTITION#,${POST_QUEUE},g;
+   s,#WALLTIME#,${POST_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Post/logs/PostAtmos_node.${node}.e,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > \
+   ${DIRRUN}/PostAtmos_node.${node}.sh
+else
+   echo "#!/bin/bash " > ${DIRRUN}/PostAtmos_node.${node}.sh
+fi
 
+cat << EOSH >> ${DIRRUN}/PostAtmos_node.${node}.sh 
+
+cd ${DIRRUN}
+. ${SCRIPTS}/setenv.bash
 
 # Saving important files to the logs directory:
 cp -f ${EXECS}/CONVMPAS-VERSION.txt ${DATAOUT}/${YYYYMMDDHHi}/Post
@@ -284,8 +356,27 @@ rm -fr ${DIRRUN}
 
 EOSH
 chmod a+x ${DIRRUN}/PostAtmos_node.${node}.sh
-sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+
+
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo "Sbatch PostAtmos_node.${node}.sh"
+      sbatch --wait --dependency=${dependency} ${DIRRUN}/PostAtmos_node.${node}.sh 
+      ;;
+    PBS)
+      echo "Rodando em PBS"
+      echo -e  "${GREEN}==>${NC} qsub PostAtmos_node.${node}.sh...\n"
+      cd ${DIRRUN}
+      qsub -W depend=${dependency} -W block=true ${DIRRUN}/PostAtmos_node.${node}.sh
+      ;;
+#   GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      ${DIRRUN}/PostAtmos_node.${node}.sh
+#      ;;
+esac
+
 
 #CR: passar este scriptpara dentro do script PostAtmos_node.0.sh, submetido.
 cd ${SCRIPTS}
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 time ${SCRIPTS}/make_template.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}

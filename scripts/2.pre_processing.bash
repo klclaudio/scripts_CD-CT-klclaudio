@@ -1,4 +1,5 @@
 #!/bin/bash 
+umask 022
 #-----------------------------------------------------------------------------#
 # !SCRIPT: pre_processing
 #
@@ -46,9 +47,13 @@ echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
 
+echo ""
+echo "---- Pre Processing ----"
+echo ""
+
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}    
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 SCRIPTS=${DIRHOMES}/scripts;           mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -76,21 +81,19 @@ export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRU
 #-------------------------------------------------------
 
 
+
 echo -e  "${GREEN}==>${NC} Scripts_CD-CT last commit: \n"
-#git log -1 --name-only
 git log | head -1
 
 
-# Untar the fixed files:
-# x1.${RES}.graph.info.part.<Ncores> files can be found in datain/fixed
-# *.TBL files also can be found in datain/fixed
-# x1.${RES}.grid.nc also can be found in datain/fixed
-
-echo -e  "${GREEN}==>${NC} copying and linking fixed input data... \n"
-mkdir -p ${DATAIN}
-rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
-rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
-ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+if [ ! -d ${DATAIN}/fixed ]
+then
+	echo -e  "${GREEN}==>${NC} copying and linking fixed input data ${SYSTEM_KEYC}... \n"
+	mkdir -p ${DATAIN}
+	rsync -rv --chmod=ugo=rw ${DIRDADOS}/MONAN_datain/datain/fixed ${DATAIN}
+	rsync -rv --chmod=ugo=rwx ${DIRDADOS}/MONAN_datain/execs ${DIRHOMED}
+	ln -sf ${DIRDADOS}/MONAN_datain/datain/WPS_GEOG ${DATAIN}
+fi
 
 
 # Creating the x1.${RES}.static.nc file once, if does not exist yet:---------------
@@ -105,13 +108,15 @@ fi
 
 
 # Degrib phase:---------------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Degrib...\n"
+echo -e  "${GREEN}==>${NC} Running Degrib:\n"
 time ./make_degrib.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 
 
+
+
 # Init Atmosphere phase:------------------------------------------------------------
-echo -e  "${GREEN}==>${NC} Submiting Init Atmosphere...\n"
+echo -e  "${GREEN}==>${NC} Running Init Atmosphere...\n"
 time ./make_initatmos.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST}
 #----------------------------------------------------------------------------------
 

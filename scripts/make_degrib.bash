@@ -1,4 +1,5 @@
 #!/bin/bash 
+umask 022
 
 
 if [ $# -ne 4 ]
@@ -27,6 +28,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Degrib ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT;  mkdir -p ${DIRHOMES}  
@@ -47,37 +51,51 @@ FCST=${4};        #FCST=24
 #-------------------------------------------------------
 
 
+
+
 # Local variables--------------------------------------
 start_date=${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}:00:00
-OPERDIREXP=${OPERDIR}/${EXP}
-BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
-GCCCIS=/mnt/beegfs/monan/CIs/${EXP}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAIN}/${YYYYMMDDHHi}
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
 
-mkdir -p ${HOME}/local/lib64
-cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
-cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+if [ "$HOSTNAME" = "egeon" ]; then
+    mkdir -p ${HOME}/local/lib64
+    cp -f /usr/lib64/libjasper.so* ${HOME}/local/lib64
+    cp -f /usr/lib64/libjpeg.so* ${HOME}/local/lib64
+fi
+
+#Se nao existir CI no diretorio do IO, 
+# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
+#CR: BNDDIR should be setted just for EGEON machine
+#CR: some local variables were mobed into the SLURM section, particularly for egeon
+
+OPERDIREXP=${OPERDIR}/${EXP}
+BNDDIR=${OPERDIREXP}/0p25/brutos/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi:4:2}/${YYYYMMDDHHi:6:2}/${YYYYMMDDHHi:8:2}
 
 
 # Se nao existir CI no diretorio do IO, 
-# busca no nosso dir /beegfs/monan/CIs, se nao existir tbm, aborta!
+# busca no nosso dir /beegfs/monan/CIs (Egeon) , /p/monan/CIs (xd2000) se nao existir tbm, aborta!
+#CR: maybe this if should belong to the SLURM kind of running...
 if [ ! -s ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
 then
-   if [ ! -s ${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
+   if [ ! -s ${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ]
    then
       echo -e "${RED}==>${NC}Condicao de contorno inexistente !"
       echo -e "${RED}==>${NC}Check ${BNDDIR} or." 
-      echo -e "${RED}==>${NC}Check ${GCCCIS}"
+      echo -e "${RED}==>${NC}Check ${GCCCIS}/${EXP}"
       exit 1            
    else
-      BNDDIR=${GCCCIS}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
+      BNDDIR=${GCCCIS}/${EXP}/${YYYYMMDDHHi:0:4}/${YYYYMMDDHHi}
    fi    
 fi
 
+
+#files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
+
 files_needed=("${DATAIN}/fixed/x1.${RES}.static.nc" "${DATAIN}/fixed/Vtable.${EXP}" "${EXECS}/ungrib.exe" "${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2")
+
 for file in "${files_needed[@]}"
 do
   if [ ! -s "${file}" ]
@@ -91,23 +109,32 @@ done
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAIN}/fixed/Vtable.${EXP} ${DIRRUN}/Vtable
 cp -f ${EXECS}/ungrib.exe ${DIRRUN}
-cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
 cp -f ${SCRIPTS}/namelists/namelist.wps.TEMPLATE ${DIRRUN}/namelist.wps.TEMPLATE
-
+cp -f ${BNDDIR}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DATAIN}/${YYYYMMDDHHi}
+cp -f ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2 ${DIRRUN}
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
 cp -f ${SCRIPTS}/link_grib.csh ${DIRRUN}
 rm -f ${DIRRUN}/degrib.bash 
-cat << EOF0 > ${DIRRUN}/degrib.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${DEGRIB_jobname}
-#SBATCH --nodes=${DEGRIB_nnodes}
-#SBATCH --partition=${DEGRIB_QUEUE}
-#SBATCH --ntasks=${DEGRIB_ncores}             
-#SBATCH --tasks-per-node=${DEGRIB_ncpn}                     # ic for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e%j     # File name for standard error output
-#
+
+
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${DEGRIB_jobname},g;
+   s,#NNODES#,${DEGRIB_nnodes},g;
+   s,#NCPUS#,${DEGRIB_ncpus},g;
+   s,#NTASKS#,${DEGRIB_ncores},g;
+   s,#NTASKSPNODE#,${DEGRIB_ncpn},g;
+   s,#NTHREADS#,${DEGRIB_nthreads},g;
+   s,#PARTITION#,${DEGRIB_QUEUE},g;
+   s,#WALLTIME#,${DEGRIB_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/degrib.e,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/degrib.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/degrib.bash 
+fi
+
+cat << EOF0 >> ${DIRRUN}/degrib.bash 
 
 ulimit -s unlimited
 ulimit -c unlimited
@@ -115,11 +142,11 @@ ulimit -v unlimited
 
 export PMIX_MCA_gds=hash
 
-
 export LD_LIBRARY_PATH=\$LD_LIBRARY_PATH:${HOME}/local/lib64
 
 cd ${DIRRUN}
-. setenv.bash
+
+. ${SCRIPTS}/setenv.bash
 
 ldd ungrib.exe
 
@@ -129,10 +156,17 @@ rm -f GRIBFILE.* namelist.wps
 sed -e "s,#LABELI#,${start_date},g;s,#PREFIX#,GFS,g" \
 	${DIRRUN}/namelist.wps.TEMPLATE > ${DIRRUN}/namelist.wps
 
+echo ""
 ./link_grib.csh ${DATAIN}/${YYYYMMDDHHi}/gfs.t${YYYYMMDDHHi:8:2}z.pgrb2.0p25.f000.${YYYYMMDDHHi}.grib2
 
+chmod 755 *
+echo ""
 date
+echo "submetendo jobs ungrib"
+
 time mpirun -np 1 ./ungrib.exe
+
+
 date
 
 
@@ -161,10 +195,23 @@ echo "End of degrib Job"
 EOF0
 chmod a+x ${DIRRUN}/degrib.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch degrib.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/degrib.bash
 
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Sbatch degrib.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/degrib.bash
+        ;;
+   PBS)
+      echo -e  "${GREEN}==>${NC} qsub degrib.bash...\n"
+      cd ${DIRRUN}
+      qsub -W block=true ${DIRRUN}/degrib.bash
+       ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      ${DIRRUN}/degrib.bash
+#      ;;
+esac
 
 
 files_ungrib=("${EXP}:${YYYYMMDDHHi:0:4}-${YYYYMMDDHHi:4:2}-${YYYYMMDDHHi:6:2}_${YYYYMMDDHHi:8:2}")
@@ -181,4 +228,5 @@ do
 done
 
 mv ${DIRRUN}/degrib.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}

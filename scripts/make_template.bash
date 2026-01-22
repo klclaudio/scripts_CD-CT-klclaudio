@@ -1,4 +1,5 @@
-#!/bin/bash
+#!/bin/bash 
+umask 022
 #-----------------------------------------------------------------------------#
 # !SCRIPT: run_post
 #
@@ -40,10 +41,13 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Template ----"
+echo ""
 
 
 # Standart directories variables:---------------------------------------
-DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
+DIRHOMES=$(dirname "$(pwd)");          mkdir -p ${DIRHOMES}  
 DIRHOMED=${DIR_DADOS}/scripts_CD-CT;   mkdir -p ${DIRHOMED}  
 export SCRIPTS=${DIRHOMES}/scripts;    mkdir -p ${SCRIPTS}
 DATAIN=${DIRHOMED}/datain;             mkdir -p ${DATAIN}
@@ -121,10 +125,15 @@ fi
 output_interval=${t_strouthor}
 nfiles=$(echo "$FCST/$output_interval + 1" | bc)
 
-diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${NLEV}.nc
-diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${NLEV}.nc
+diag_name_post=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_${YYYYMMDDHHi}.00.00.x${RES}L${N_MODEL_LEV}.nc
+diag_name_templ=MONAN_DIAG_G_POS_${EXP}_${YYYYMMDDHHi}_%y4%m2%d2%h2.%n2.00.x${RES}L${N_MODEL_LEV}.nc
+
+
 
 rm -fr ${DIRRUN}/qctlinfo.gs
+cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Post/*
 cat > ${DIRRUN}/qctlinfo.gs <<EOGS
 'reinit'
 'sdfopen ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}' 
@@ -134,11 +143,23 @@ say result
 
 'quit'
 EOGS
+
+
 cd ${DIRRUN}
+
+. ${SCRIPTS}/setenv.bash
+chmod 755 *
+
+
 grads -blc "run ${DIRRUN}/qctlinfo.gs" | awk '/dset/,/endvars/' > ${DIRRUN}/qctlinfo.ctl
+chmod 755 ${DIRRUN}/qctlinfo.ctl
+
+
 timectl=$(grep tdef ${DIRRUN}/qctlinfo.ctl | cut -d" " -f4)
 sed -i '3a\options template' ${DIRRUN}/qctlinfo.ctl
 sed -i "/tdef/c\tdef ${nfiles} linear ${timectl} ${t_stroutmin}mn" ${DIRRUN}/qctlinfo.ctl
 sed -i "/dset/c\dset ^${diag_name_templ}" ${DIRRUN}/qctlinfo.ctl
+
+chmod 755 ${DIRRUN}/*
 mv ${DIRRUN}/qctlinfo.ctl ${DATAOUT}/${YYYYMMDDHHi}/Post/${diag_name_post}.template.ctl
 rm -fr ${DIRRUN}

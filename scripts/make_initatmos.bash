@@ -1,4 +1,5 @@
 #!/bin/bash 
+umask 022
 
 
 if [ $# -ne 4 ]
@@ -26,6 +27,9 @@ echo ""
 echo -e "\033[1;32m==>\033[0m Moduling environment for MONAN model...\n"
 . setenv.bash
 
+echo ""
+echo "---- Make Init Atmosphere ----"
+echo ""
 
 # Standart directories variables:---------------------------------------
 DIRHOMES=${DIR_SCRIPTS}/scripts_CD-CT; mkdir -p ${DIRHOMES}  
@@ -53,6 +57,8 @@ cores=${INITATMOS_ncores}
 export DIRRUN=${DIRHOMED}/run.${YYYYMMDDHHi}; rm -fr ${DIRRUN}; mkdir -p ${DIRRUN}
 #-------------------------------------------------------
 mkdir -p ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+
+
 
 
 if [ ! -s ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ]
@@ -97,21 +103,32 @@ cp -f ${DATAIN}/fixed/x1.${RES}.graph.info.part.${cores} ${DIRRUN}
 cp -f ${DATAIN}/fixed/x1.${RES}.static.nc ${DIRRUN}
 cp -f ${DATAOUT}/${YYYYMMDDHHi}/Pre/${EXP}\:${start_date:0:13} ${DIRRUN}
 cp -f ${EXECS}/init_atmosphere_model ${DIRRUN}
-
-
 cp -f ${SCRIPTS}/setenv.bash ${DIRRUN}
+
+chmod 755 ${DIRRUN}/*
+chmod 755 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
+
 rm -f ${DIRRUN}/initatmos.bash 
-cat << EOF0 > ${DIRRUN}/initatmos.bash 
-#!/bin/bash -x
-#SBATCH --job-name=${INITATMOS_jobname}
-#SBATCH --nodes=${INITATMOS_nnodes}                         # depends on how many boundary files are available
-#SBATCH --partition=${INITATMOS_QUEUE} 
-#SBATCH --tasks-per-node=${INITATMOS_ncores}               # only for benchmark
-#SBATCH --time=${STATIC_walltime}
-#SBATCH --output=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o%j    # File name for standard output
-#SBATCH --error=${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e%j     # File name for standard error output
-#SBATCH --exclusive
-##SBATCH --mem=500000
+
+
+if [ ${SCHEDULER_SYSTEM} != "GENERIC" ]
+then
+   sed -e "s,#JOBNAME#,${INITATMOS_jobname},g;
+   s,#NNODES#,${INITATMOS_nnodes},g;
+   s,#NCPUS#,${INITATMOS_ncpus},g;
+   s,#NTASKS#,${INITATMOS_ncores},g;
+   s,#NTASKSPNODE#,${INITATMOS_ncpn},g;
+   s,#NTHREADS#,${INITATMOS_nthreads},g;
+   s,#PARTITION#,${INITATMOS_QUEUE},g;
+   s,#WALLTIME#,${INITATMOS_walltime},g;
+   s,#OUTPUTJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.o,g;
+   s,#ERRORJOB#,${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/initatmos.bash.e,g" \
+   ${SCRIPTS}/stools/submit_${SYSTEM_KEY}.bash_TEMPLATE > ${DIRRUN}/initatmos.bash 
+else
+   echo "#!/bin/bash " > ${DIRRUN}/initatmos.bash 
+fi
+
+cat << EOF0 >> ${DIRRUN}/initatmos.bash 
 
 export executable=init_atmosphere_model
 
@@ -120,15 +137,26 @@ ulimit -v unlimited
 ulimit -s unlimited
 
 
-. $(pwd)/setenv.bash
-
 cd ${DIRRUN}
-
+. ${SCRIPTS}/setenv.bash
 
 
 date
-time mpirun -np \${SLURM_NTASKS} ./\${executable}
+beg_secs=\`date +"%s"\`
+
+if [ "$HOSTNAME" = "egeon" ]; then
+   echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
+   time mpirun -np ${INITATMOS_ncores} ./\${executable}
+else
+   echo "-- PBS_JOBID: \$PBS_JOBID"
+   time mpirun --ppn ${INITATMOS_ncpn} -np ${INITATMOS_ncores} --depth=${INITATMOS_nthreads} --cpu-bind depth ./\${executable}
+fi
+
 date
+end_secs=\`date +"%s"\`
+
+let wallsecs=\$end_secs-\$beg_secs
+echo "INITATMOS time taken by run in seconds is " \$wallsecs
 
 
 mv ${DIRRUN}/log.init_atmosphere.0000.out ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs/log.init_atmosphere.0000.x1.${RES}.init.nc.${YYYYMMDDHHi}.out
@@ -139,10 +167,26 @@ mv ${DIRRUN}/x1.${RES}.init.nc ${DATAOUT}/${YYYYMMDDHHi}/Pre
 EOF0
 chmod a+x ${DIRRUN}/initatmos.bash
 
-echo -e  "${GREEN}==>${NC} Executing sbatch initatmos.bash...\n"
-cd ${DIRRUN}
-sbatch --wait ${DIRRUN}/initatmos.bash
+case "${SCHEDULER_SYSTEM}" in
+   SLURM)
+      echo -e  "${GREEN}==>${NC} Sbatch initatmos.bash...\n"
+      cd ${DIRRUN}
+      sbatch --wait ${DIRRUN}/initatmos.bash
+      ;;
+    PBS)
+      echo -e  "${GREEN}==>${NC} qsub initatmos.bash...\n"
+      cd ${DIRRUN}
+      qsub -W block=true ${DIRRUN}/initatmos.bash
+      ;;
+#    GENERIC)
+#      echo "Nenhum gerenciador detectado"
+#      cd ${DIRRUN}
+#      ${DIRRUN}/initatmos.bash
+#      ;;
+esac
 mv ${DIRRUN}/initatmos.bash ${DATAOUT}/${YYYYMMDDHHi}/Pre/logs
+
+
 
 if [ ! -s ${DATAOUT}/${YYYYMMDDHHi}/Pre/x1.${RES}.init.nc ]
 then
@@ -151,5 +195,5 @@ then
   echo -e  "${RED}==>${NC} Exiting script. \n"
   exit -1
 fi
-
+chmod 775 ${DATAOUT}/${YYYYMMDDHHi}/Pre/*
 rm -fr ${DIRRUN}
