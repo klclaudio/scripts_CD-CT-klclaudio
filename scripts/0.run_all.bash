@@ -37,32 +37,28 @@ EXECS=${DIRHOMED}/execs;               mkdir -p ${EXECS}
 #----------------------------------------------------------------------
 
 
-
 # Input variables:-----------------------------------------------------
 github_link="https://github.com/monanadmin/MONAN-Model.git"
-monan_branch=feature/monan-833-NF
+monan_branch=1.4.3-rc
 convertmpas_branch=1.2.0
 EXP=GFS
-RES=1024002
-YYYYMMDDHHi=2025101900
-FCST=240
+RES=1024002       #Options: 40962=120km;163842=60km;655362=30Km;1024002=24km;2621442=15Km;5898242=10Km
+YYYYMMDDHHi=2026012000
+FCST=24
 #----------------------------------------------------------------------
 
-
 # STEP 1: Installing and compiling the A-MONAN model and utility programs:
-#time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
+time ${SCRIPTS}/1.install_monan.bash ${github_link} ${monan_branch} ${convertmpas_branch}
 #exit
 
 # STEP 2: Executing the pre-processing fase. Preparing all CI/CC files needed:
-#time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
+time ${SCRIPTS}/2.pre_processing.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
 #exit
 
 # STEP 3: Executing the Model run:
 time ${SCRIPTS}/3.run_model.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-exit
+#exit
 
 # STEP 4: Executing the Post of Model run:
 time ${SCRIPTS}/4.run_post.bash ${EXP} ${RES} ${YYYYMMDDHHi} ${FCST} 
-
-
-exit
+#exit

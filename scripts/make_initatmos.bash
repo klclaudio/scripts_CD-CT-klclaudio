@@ -145,8 +145,10 @@ date
 beg_secs=\`date +"%s"\`
 
 if [ "$HOSTNAME" = "egeon" ]; then
+   echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${INITATMOS_ncores} ./\${executable}
 else
+   echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${INITATMOS_ncpn} -np ${INITATMOS_ncores} --depth=${INITATMOS_nthreads} --cpu-bind depth ./\${executable}
 fi
 

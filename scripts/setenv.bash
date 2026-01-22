@@ -1,8 +1,8 @@
 #!/bin/bash
 umask 022
 
-# Choose your compiler here:
-#export COMPILER=intel
+# Choose your compiler here (only on Jaci; on Egeon the compiler is fixed to ‘gnu’):
+export COMPILER=intel
 #export COMPILER=gnu
 #export COMPILER=cray
 #export COMPILER=nvidia
@@ -30,13 +30,17 @@ case ${THOSTNAME} in
       export HOSTNAME="egeon"
       export MAKE_TARG=gfortran
       export MAKE_TARG2=gfortran
-      export COMPILER=gnu
+      COMPILER=gnu
       ;;
    ian[0-9]*|cn-0[0-9][0-9][0-9])
       export HOSTNAME="ian"
-      export MAKE_TARG=intel-xd2000
-      export MAKE_TARG2=intel2-xd2000
-      export COMPILER=intel
+      if [ "$COMPILER" == "intel" ]; then
+         export MAKE_TARG=intel-xd2000
+         export MAKE_TARG2=intel2-xd2000
+      elif [ "$COMPILER" == "gnu" ]; then
+         export MAKE_TARG=gfortran-xd2000
+         export MAKE_TARG2=gfortran-xd2000
+      fi
       ;;
 esac
 # Make the same for other machines/systems...
@@ -55,12 +59,11 @@ export SYSTEM_KEYC="${SCHEDULER_SYSTEM}_${HOSTNAME}_${COMPILER}"
 # Put your directories:
 export DIR_SCRIPTS=$(dirname $(dirname $(pwd)))
 export DIR_DADOS=${DIR_SCRIPTS}
-export MONANDIR=/mnt/beegfs/carlos.souza/issues/833-scripts-cdct-teste-ian/scripts_CD-CT/sources/MONAN-Model_feature/monan-833-NF
+export MONANDIR=$MONANDIR
 
 
 # Load your system setenv:
 . ${DIR_SCRIPTS}/scripts_CD-CT/scripts/stools/setenv_${SYSTEM_KEYC}.bash
-
 
 #module list
 #echo ""
@@ -72,11 +75,6 @@ export MONANDIR=/mnt/beegfs/carlos.souza/issues/833-scripts-cdct-teste-ian/scrip
 # We discourage changing the variables below:
 
 # Others variables:
-export OMP_NUM_THREADS=1
-export OMPI_MCA_btl_openib_allow_ib=1
-export OMPI_MCA_btl_openib_if_include="mlx5_0:1"
-export PMIX_MCA_gds=hash
-export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
 
 
 # Colors:

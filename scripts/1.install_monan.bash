@@ -88,11 +88,11 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
 tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.3.1-rc"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.4.3-rc"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 
 tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.1.0"}
+tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.2.0"}
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
@@ -212,12 +212,14 @@ DATE_TIME_NOW=\$(date +"%Y%m%d%H%M%S")
 export NETCDF=\${NETCDFDIR}
 export PNETCDF=\${PNETCDFDIR}
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
+#export PIO=\${PIODIR}
 export PIO=
 
 MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.atmosphere"
 
 make clean CORE=atmosphere
 make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 ${MAKE_TARG} CORE=atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 #make -j 8 intel-xd2000 CORE=atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
 
@@ -233,6 +235,7 @@ MAKE_OUT_FILE="make_\${DATE_TIME_NOW}_.output.init_atmosphere"
 
 make clean CORE=init_atmosphere
 make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
+#make -j 8 ${MAKE_TARG2} CORE=init_atmosphere OPENMP=true USE_PIO2=true PRECISION=single 2>&1 | tee \${MAKE_OUT_FILE}
 
 #make -j 8 intel-xd2000 CORE=init_atmosphere OPENMP=true USE_PIO2=false PRECISION=single OPTIMIZATION_LEVEL=O1 FFLAGS_OPT=-O1 CFLAGS_OPT=-O1 CXXFLAGS_OPT=-O1 2>&1 | tee \${MAKE_OUT_FILE}
 
@@ -258,7 +261,10 @@ echo -e  "${GREEN}==>${NC} Installing init_atmosphere_model and atmosphere_model
 echo ""
 . ${MONANDIR}/make-all.sh
 
-
+if [ "$HOSTNAME" == "ian" ]; then
+#   echo "hostname=$HOSTNAME"
+   export PATH=$NETCDF/bin:$PATH
+fi
 
 # install convert_mpas
 echo ""

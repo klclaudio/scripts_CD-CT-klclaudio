@@ -2,7 +2,7 @@
 
 # Load modules:
 module purge
-module load PrgEnv-intel
+module load PrgEnv-gnu
 module load craype-x86-turin
 module load cray-hdf5/1.14.3.3
 module load cray-netcdf/4.9.0.15
@@ -38,7 +38,6 @@ export DEGRIB_nthreads=1
 export DEGRIB_jobname="Pre.degrib"
 export DEGRIB_walltime="02:00:00"
 
-
 # PRE-Init Atmosphere phase:
 export INITATMOS_QUEUE="pesqextra"
 export INITATMOS_ncores=512
@@ -48,7 +47,6 @@ export INITATMOS_ncpn=128
 export INITATMOS_nthreads=1
 export INITATMOS_jobname="Pre.InitAtmos"
 export INITATMOS_walltime="02:00:00"
-
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"

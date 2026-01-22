@@ -97,13 +97,15 @@ elif [ $RES -eq 2621442 ]; then  #15Km
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 40962 ]; then  #120Km
    CONFIG_DT=600.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 163842 ]; then  #60Km
    CONFIG_DT=300.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 655362 ]; then  #30Km
    CONFIG_DT=150.0
+   CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 5898242 ]; then  #10Km
    CONFIG_DT=60.0
-   CONFIG_LEN_DISP=10000.0
    CONFIG_CONV_INTERVAL="00:15:00"
 elif [ $RES -eq 65536002 ]; then  #3Km
    CONFIG_DT=18.0
@@ -209,8 +211,10 @@ date
 beg_secs=\`date +"%s"\`
 
 if [ "$HOSTNAME" = "egeon" ]; then
+   echo "-- SLURM_JOB_ID: \$SLURM_JOB_ID"
    time mpirun -np ${MODEL_ncores} ./\${executable}
 else
+   echo "-- PBS_JOBID: \$PBS_JOBID"
    time mpirun --ppn ${MODEL_ncpn} -np ${MODEL_ncores} --depth=${MODEL_nthreads} --cpu-bind depth ./\${executable}
 fi
 
