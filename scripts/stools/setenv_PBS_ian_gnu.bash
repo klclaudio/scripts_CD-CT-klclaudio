@@ -4,6 +4,9 @@
 module purge
 module load PrgEnv-gnu
 module load craype-x86-turin
+module load cray-hdf5/1.14.3.3
+module load cray-netcdf/4.9.0.15
+module load cray-parallel-netcdf/1.12.3.15
 module load xpmem/0.2.119-1.3_gef379be13330
 module load grads/2.2.1.oga.1
 module load cdo/2.4.2
@@ -47,8 +50,8 @@ export INITATMOS_walltime="02:00:00"
 
 # Model phase:
 export MODEL_QUEUE="pesqextra"
-export MODEL_ncores=8192
-export MODEL_nnodes=32
+export MODEL_ncores=2048
+export MODEL_nnodes=8
 export MODEL_ncpus=256
 export MODEL_ncpn=256
 export MODEL_nthreads=1
@@ -69,25 +72,30 @@ export POST_walltime="8:00:00"
 
 
 # Libraries paths:
-#export PIO=${PIO_ROOT}
-#export NETCDF=${NETCDF_DIR}
-#export PNETCDF=${PNETCDF_DIR}
-export PIO=/lustre/projetos/monan_adm/eduardo.khamis/libs_gnu/source/installLibs
-export NETCDF=/lustre/projetos/monan_adm/eduardo.khamis/libs_gnu/source/installLibs
-export PNETCDF=/lustre/projetos/monan_adm/eduardo.khamis/libs_gnu/source/installLibs
-export PIODIR=${PIO}
+export NETCDF=${NETCDF_DIR}
+export PNETCDF=${PNETCDF_DIR}
 export NETCDFDIR=${NETCDF}
 export PNETCDFDIR=${PNETCDF}
 
-
 export OPERDIR=/oper/dados/ioper/tempo
-export DIRDADOS=/lustre/projetos/monan_adm/monan/dados/MONAN_v1.4.x
-export GCCCIS=/lustre/projetos/monan_adm/monan/CIs
+export DIRDADOS=/p/projetos/monan_adm/monan/dados/MONAN_v1.4.x
+export GCCCIS=/p/projetos/monan_adm/monan/CIs
 
 
 # PIO is not necessary for version 8.* If PIO is empty, MPAS Will use SMIOL
-#export PIO=
-export LD_LIBRARY_PATH=$NETCDF/lib64:$PNETCDF/lib64:$PIO/lib64:$LD_LIBRARY_PATH
+export PIO=
+export LD_LIBRARY_PATH=$NETCDF/lib:$PNETCDF/lib:$PIO/lib64:$LD_LIBRARY_PATH
+
+
+# --- Others Variables ---
+# HPE Slingshot/Libfabric:
+export FI_CXI_REQ_BUF_SIZE=25165824
+export FI_CXI_RX_MATCH_MODE=software
+export FI_MR_CACHE_MAX_COUNT=0
+# MPICH:
+export MPICH_MEMORY_REPORT=2
+# OpenMP:
+export OMP_NUM_THREADS=1
 
 
 #

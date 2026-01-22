@@ -1,10 +1,10 @@
-# MONAN - Model for Ocean-laNd-Atmosphere PredictioN
+# Scripts CD-CT (Continuos Deployment & Continuous Testing) for MONAN (Model for Ocean-laNd-Atmosphere PredictioN)
 
-### *Continuous Deployment & Continuous Testing (CD-CT) for MONAN at Egeon*
+## History
 
-This folder aims to create a version for testing MONAN with GFS at Egeon.
-
-## History: ##
+**1.4.0**
+- Compatibility with MONAN 1.4.3-rc.
+- Support for multi-environment: 'Jaci' supercomputer (intel and gnu compilers and PBS scheduler) and 'Egeon' cluster (gnu compiler and SLURM scheduler).
 
 **1.3.0**
 - This version was created to work in operational runs.
@@ -62,7 +62,7 @@ This folder aims to create a version for testing MONAN with GFS at Egeon.
 - Grouping all variables with one pressure level to only one variable with all levels.
 - Defined default version of MONAN-Model (0.5.0) and convert_mpas (0.1.0) in the installation step.
 
-### Implementation at Egeon:
+## Get Started
 
 **Getting the scritps:**
 
@@ -91,8 +91,8 @@ You will need to execute only 6 steps scripts, so you can run the Atmospheric MO
 
 Default values:
 ~~~
-<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.0.0"
-<OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.0.0"
+<OPTIONAL_tag_or_branch_name_MONAN-Model> = "1.4.3-rc"
+<OPTIONAL_tag_or_branch_name_Convert-MPAS> = "1.2.0"
 ~~~
 
 - This first step will create a standart diretories structures for work:
@@ -114,7 +114,6 @@ Where:
      - `dataout\Pre\<YYYYMMDDHH>` will contain all the output files from the pre-processing phase, mostly are all the initial condition for run the MONAN;
      - `dataout\Model\<YYYYMMDDHH>` will contain all the output files from the MONAN model;
      - `dataout\Post\<YYYYMMDDHH>` will contain all the output files from the post-processing phase of the MONAN;
-     - `dataout\Prods\<YYYYMMDDHH>` will contain all the output files from the products generated, graphics, derivated variables, peace of domain, etc.
 
 After running the first step, it will clone the MONAN model from your fork repo in a `source` diretory.
 

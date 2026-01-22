@@ -71,3 +71,16 @@ export PNETCDFDIR=${PNETCDF}
 export DIRDADOS=/mnt/beegfs/monan/dados/MONAN_v1.4.x
 export OPERDIR=/oper/dados/ioper/tempo
 export GCCCIS=/mnt/beegfs/monan/CIs
+
+
+# --- Others Vabriables ---
+# OpenMPI:
+export OMPI_MCA_btl_openib_allow_ib=1
+export OMPI_MCA_btl_openib_if_include="mlx5_0:1"
+# PMIx (process management for MPI):
+export PMIX_MCA_gds=hash
+# MPI:
+export MPI_PARAMS="-iface ib0 -bind-to core -map-by core"
+# OpenMP:
+export OMP_NUM_THREADS=1
+

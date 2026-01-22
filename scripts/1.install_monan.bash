@@ -88,11 +88,11 @@ EXECS=${DIRHOMED}/execs;                mkdir -p ${EXECS}
 # Input variables:-----------------------------------------------------
 github_link_MONAN=${1};   #github_link=https://github.com/monanadmin/MONAN-Model.git
 tag_or_branch_name_MONAN=${2}
-tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="release/1.3.1-rc"}
+tag_or_branch_name_MONAN=${tag_or_branch_name_MONAN:="1.4.3-rc"}
 echo "MONAN branch name in use: ${tag_or_branch_name_MONAN}"
 
 tag_or_branch_name_CONVERT_MPAS=${3}
-tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.1.0"}
+tag_or_branch_name_CONVERT_MPAS=${tag_or_branch_name_CONVERT_MPAS:="1.2.0"}
 echo "convert_mpas branch name in use: ${tag_or_branch_name_CONVERT_MPAS}"
 #----------------------------------------------------------------------
 
